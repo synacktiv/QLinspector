@@ -31,7 +31,7 @@ de.getEnclosingCallable() = c0
 select c0, de
 ```
 
-### finding new sources
+### Finding new sources
 
 To find new sources run the following query:
 
@@ -91,7 +91,7 @@ There is no limit, even if there are some results it's possible to keep adding i
 
 ### Filtering false positive
 
-Running the above query can return a lot of false positives. To filter them the `Sanitizer` class has been added. You can add condition to filter out methods. Note that for now it will apply the filter on all the chain. For example if you want to filter the `getValue` method:
+Running the above query can return a lot of false positives. To filter them the `Sanitizer` class has been added. You can add conditions to filter out methods. Note that for now it will apply the filter on all the chain. For example if you want to filter the `getValue` method:
 
 ```
 private class Sanitizer extends Callable {
@@ -101,9 +101,9 @@ private class Sanitizer extends Callable {
 }
 ```
 
-### exploring new ideas
+### Exploring new ideas
 
-A lot of gadget chains are currently using the call to the `getOutputProperties` method of the `TemplatesImpl` object, new path can be explored with this query:
+A lot of gadget chains are currently using the call to the `getOutputProperties` method of the `TemplatesImpl` object, new paths can be explored with this query:
 
 ```
 from Callable c0
