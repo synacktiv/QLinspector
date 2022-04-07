@@ -1,3 +1,10 @@
+/**
+ * 
+ * @name QLInspector
+ * @kind path-problem
+ * 
+ */
+
 import java
 import semmle.code.java.security.DangerousMethods
 import semmle.code.java.security.Source
@@ -65,6 +72,17 @@ private class Sanitizer extends Callable {
   }
 }
 
+
+query predicate edges(ControlFlowNode node1, ControlFlowNode node2) {
+    (node1.(MethodAccess).getMethod() = node2 and node2 instanceof RecursiveCallToDangerousMethod) or 
+    (node2.(MethodAccess).getEnclosingCallable() = node1 and node1 instanceof RecursiveCallToDangerousMethod)or 
+    (node1.(RecursiveCallToDangerousMethod).polyCalls(node2) and node2 instanceof RecursiveCallToDangerousMethod)
+}
+
+predicate hasCalls(RecursiveCallToDangerousMethod c0, RecursiveCallToDangerousMethod c1) {
+    c0.polyCalls(c1) or exists(RecursiveCallToDangerousMethod unsafe | c0.polyCalls(unsafe) and hasCalls(unsafe, c1))
+}
+
 /*
 ================ find sink  ================
 from Callable c0,  DangerousExpression de
@@ -80,28 +98,11 @@ select c0
 
 
 =======  link the source and the sink  ======
-from Callable c0, Callable c1, Callable c2, Callable c3, Callable c4, Callable c5, DangerousExpression de
-where c0 instanceof RecursiveCallToDangerousMethod and
-de.getEnclosingCallable() = c0 and
-
-c1.polyCalls(c0) and
-c1 instanceof RecursiveCallToDangerousMethod and
-
-c2.polyCalls(c1) and
-c2 instanceof RecursiveCallToDangerousMethod and
-
-c3.polyCalls(c2) and
-c3 instanceof RecursiveCallToDangerousMethod and
-
-c4.polyCalls(c3) and
-c4 instanceof RecursiveCallToDangerousMethod and
-
-c5.polyCalls(c4) and
-c5 instanceof RecursiveCallToDangerousMethod and
-
-c5 instanceof Source 
-
-select c5, c4, c3, c2, c1, c0, de
+from RecursiveCallToDangerousMethod c0,  RecursiveCallToDangerousMethod c1, DangerousExpression de
+where de.getEnclosingCallable() = c1 and
+c0 instanceof Source and
+hasCalls(c0, c1)
+select c0, c0, c1, "recursive call to dangerous expression $@", de, de.toString()
 
 
 ========== check source to sink path  ==========
@@ -113,3 +114,9 @@ c0 instanceof Source
 
 select  c0, ma 
 */
+
+from RecursiveCallToDangerousMethod c0,  RecursiveCallToDangerousMethod c1, DangerousExpression de
+where de.getEnclosingCallable() = c1 and
+c0 instanceof Source and
+hasCalls(c0, c1)
+select c0, c0, c1, "recursive call to dangerous expression $@", de, de.toString()

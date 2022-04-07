@@ -42,52 +42,21 @@ c0 instanceof Source
 select c0
 ```
 
+Note that both queries can result in a CodeQL error, removing the `@kind path-problem` metadata can fix this issue, however this metadata is required for the next query.
+
 ### Linking the sources and the sinks
 
-To link the sources and the sinks, multiple queries are required, first we start with 0 intermediate call:
+To link the sources and the sinks the following query can be done thanks to the `edges` predicate:
 
 ```
-from Callable c0,  DangerousExpression de
-where c0 instanceof RecursiveCallToDangerousMethod and
-de.getEnclosingCallable() = c0 and
-
-c0 instanceof Source 
-
-select c0, de
+from RecursiveCallToDangerousMethod c0,  RecursiveCallToDangerousMethod c1, DangerousExpression de
+where de.getEnclosingCallable() = c1 and
+c0 instanceof Source and
+hasCalls(c0, c1)
+select c0, c0, c1, "recursive call to dangerous expression $@", de, de.toString()
 ```
 
-Then we can keep adding intermediate calls:
-
-```
-from Callable c0, Callable c1, DangerousExpression de
-where c0 instanceof RecursiveCallToDangerousMethod and
-de.getEnclosingCallable() = c0 and
-
-c1.polyCalls(c0) and
-c1 instanceof RecursiveCallToDangerousMethod and
-
-c1 instanceof Source 
-
-select c1, c0, de
-```
-
-```
-from Callable c0, Callable c1, Callable c2, DangerousExpression de
-where c0 instanceof RecursiveCallToDangerousMethod and
-de.getEnclosingCallable() = c0 and
-
-c1.polyCalls(c0) and
-c1 instanceof RecursiveCallToDangerousMethod and
-
-c2.polyCalls(c1) and
-c2 instanceof RecursiveCallToDangerousMethod and
-
-c2 instanceof Source 
-
-select c2, c1, c0, de
-```
-
-There is no limit, even if there are some results it's possible to keep adding intermediate calls.
+![hibernate 6.0 example](img/hibernate-6.0.png)
 
 ### Filtering false positive
 
