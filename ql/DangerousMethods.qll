@@ -94,7 +94,8 @@ class RuntimeExec extends Method {
 
 class URL extends Method {
   URL(){
-    hasQualifiedName("java.net", "URL", "openStream")
+    hasQualifiedName("java.net", "URL", "openStream") or
+    hasQualifiedName("java.net", "URLConnection", "connect")
   }
 }
 
