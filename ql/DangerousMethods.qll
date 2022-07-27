@@ -48,35 +48,47 @@ class BeanFactory extends RefType {
   BeanFactory(){ hasQualifiedName("org.springframework.beans.factory", "BeanFactory")}
 }
 
-class OGNL extends RefType {
-  OGNL(){hasQualifiedName("ognl", "Ognl")}
+class SpringframeworkExpression extends RefType {
+  SpringframeworkExpression() { this.hasQualifiedName("org.springframework.expression", "Expression") }
 }
 
-class OgnlValueStack extends RefType {
-  OgnlValueStack(){ hasQualifiedName("com.opensymphony.xwork2.ognl", "OgnlValueStack")}
+
+class OGNL extends RefType {
+  OGNL(){
+    hasQualifiedName("ognl", "Ognl") or
+    hasQualifiedName("ognl", "Node") or 
+    hasQualifiedName("ognl.enhance", "ExpressionAccessor") or 
+    hasQualifiedName("org.apache.commons.ognl", "Ognl") or
+    hasQualifiedName("org.apache.commons.ognl", "Node") or
+    hasQualifiedName("org.apache.commons.ognl.enhance", "ExpressionAccessor") or
+    hasQualifiedName("com.opensymphony.xwork2.ognl", "OgnlUtil") or 
+    hasQualifiedName("com.opensymphony.xwork2.ognl", "OgnlValueStack")
+  }
 }
 
 class DriverManager extends RefType {
   DriverManager(){hasQualifiedName("java.sql", "DriverManager")}
 }
 
-
 class ExpressionEvaluationMethod extends Method {
     ExpressionEvaluationMethod(){
-        getDeclaringType().getASupertype*() instanceof ValueExpression and
-        hasName(["getValue", "setValue"]) 
+        ( getDeclaringType().getASupertype*() instanceof ValueExpression and
+        hasName(["getValue", "setValue"]))
         or
-        getDeclaringType().getASupertype*() instanceof MethodExpression and
-        hasName("invoke") 
+        (getDeclaringType().getASupertype*() instanceof MethodExpression and
+        hasName("invoke") )
         or
-        getDeclaringType().getASupertype*() instanceof LambdaExpression and
-        hasName("invoke") 
+        (getDeclaringType().getASupertype*() instanceof LambdaExpression and
+        hasName("invoke") )
         or
-        getDeclaringType().getASupertype*() instanceof ELProcessor and
-        hasName(["eval", "getValue", "setValue"]) 
+        (getDeclaringType().getASupertype*() instanceof ELProcessor and
+        hasName(["eval", "getValue", "setValue"]) )
         or
-        getDeclaringType().getASupertype*() instanceof ELProcessor and
-        hasName("setVariable")
+        (getDeclaringType().getASupertype*() instanceof ELProcessor and
+        hasName("setVariable"))
+        or 
+        (getDeclaringType().getASupertype*() instanceof SpringframeworkExpression and
+        hasName(["getValue", "getValueTypeDescriptor", "getValueType", "setValue"]))
     }
 }
 
@@ -94,7 +106,7 @@ class RuntimeExec extends Method {
 
 class URL extends Method {
   URL(){
-    hasQualifiedName("java.net", "URL", "openStream") or
+    hasQualifiedName("java.net", "URL", "openStream") or 
     hasQualifiedName("java.net", "URLConnection", "connect")
   }
 }
@@ -208,8 +220,10 @@ class SpringBeansMethods extends Callable {
 
 class OGNLEvaluation extends Callable {
   OGNLEvaluation(){
-     this.getDeclaringType().getASupertype*() instanceof OgnlValueStack and hasName("findValue") or 
-     this.getDeclaringType().getASupertype*() instanceof OGNL and hasName("getValue")
+
+    exists(RefType t | this.getDeclaringType().getASupertype*() = t and 
+    t instanceof OGNL and 
+    this.hasName(["getValue", "findValue","setValue","callMethod","get","set"]))
   }
 }
 
@@ -218,6 +232,13 @@ class DriverManagerMethods extends Callable {
     this.getDeclaringType().getASupertype*() instanceof DriverManager and hasName("getConnection")
   }
 }
+
+class JavaClassMethods extends Callable {
+  JavaClassMethods(){
+    hasQualifiedName("java.lang", "Class", "newInstance")
+  }
+}
+
 
 class DangerousMethod extends Callable {
   DangerousMethod(){
@@ -233,10 +254,11 @@ class DangerousMethod extends Callable {
     this instanceof ClassLoader or
     this instanceof ContextLookup or
     this instanceof OGNLEvaluation or
-    this instanceof DriverManagerMethods
+    this instanceof DriverManagerMethods or
+    this instanceof JavaClassMethods or
     
     //this instanceof SpringBeansMethods
-    //this instanceof System
+    this instanceof System
   }
 
 }
