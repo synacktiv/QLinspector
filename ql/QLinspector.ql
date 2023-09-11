@@ -74,9 +74,8 @@ private class Sanitizer extends Callable {
 
 
 query predicate edges(ControlFlowNode node1, ControlFlowNode node2) {
-    (node1.(MethodAccess).getMethod() = node2 and node2 instanceof RecursiveCallToDangerousMethod) or 
-    (node2.(MethodAccess).getEnclosingCallable() = node1 and node1 instanceof RecursiveCallToDangerousMethod)or 
-    (node1.(RecursiveCallToDangerousMethod).polyCalls(node2) and node2 instanceof RecursiveCallToDangerousMethod)
+    (node1.(MethodAccess).getMethod().getAPossibleImplementation() = node2 and node2 instanceof RecursiveCallToDangerousMethod) or 
+    (node2.(MethodAccess).getEnclosingCallable() = node1 and node1 instanceof RecursiveCallToDangerousMethod) 
 }
 
 predicate hasCalls(RecursiveCallToDangerousMethod c0, RecursiveCallToDangerousMethod c1) {
