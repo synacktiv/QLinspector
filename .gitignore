@@ -1,3 +1,5 @@
 examples/vulnMap/.classpath
 examples/vulnMap/.project
 examples/vulnMap/.settings/
+ql/.codeql/
+ql/codeql-pack.lock.yml

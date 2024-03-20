@@ -1,0 +1,9 @@
+---
+name: synacktiv/qlinspector
+version: 1.0.0
+library: false
+authors: hugow
+dependencies:
+  codeql/java-all: "*"
+defaultSuite:
+  query: queries/QLinspector.ql

@@ -1,13 +1,14 @@
 /**
- * 
+ * @id synacktiv/java/qlinspector
+ * @description find Java gadget chains
  * @name QLInspector
  * @kind path-problem
  * 
  */
 
 import java
-import semmle.code.java.security.DangerousMethods
-import semmle.code.java.security.Source
+import libs.DangerousMethods
+import libs.Source
 
 
 /* 
