@@ -5,20 +5,21 @@ More information in our [article](https://www.synacktiv.com/publications/finding
 
 ## Installation
 
-Move the `QLinspector.ql` file to your codeql source location:
-```
-mv QLinspector.ql codeql-repo/java/ql/src/your/path/
+Clone the repo
+```sh
+$ git clone https://github.com/synacktiv/QLinspector.git
 ```
 
-Move the `DangerousMethods.qll` and the `Source.qll` file to the codeql lib folder:
-```
-mv DangerousMethods.qll codeql-home/codeql-repo/java/ql/lib/semmle/code/java/
-mv Source.qll codeql-home/codeql-repo/java/ql/lib/semmle/code/java/security/
+Search for gadgets:
+```sh
+$ codeql database analyze log4j --format=sarif-latest --output=log4j.sarif ./QLinspector/
 ```
 
 ## Usage
 
 As described in our [article](https://www.synacktiv.com/publications/finding-gadgets-like-its-2022.html) three steps need to be done.
+
+If you need to modify the code to fit your needs, you can open the current repository in VSCode with the CodeQL plugin and modify the different files.
 
 ### Finding new sinks
 
