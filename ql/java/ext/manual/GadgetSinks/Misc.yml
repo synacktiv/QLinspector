@@ -1,6 +1,6 @@
 extensions:
   - addsTo:
-      pack: codeql/csharp-all
+      pack: codeql/java-all
       extensible: sinkModel
     data:
       # Text4Shell: https://securitylab.github.com/advisories/GHSL-2022-018_Apache_Commons_Text/
