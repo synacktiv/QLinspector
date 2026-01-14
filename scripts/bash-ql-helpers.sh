@@ -2,13 +2,14 @@
 
 # Configuration
 JAR_LIST="$1"                     # Text file containing paths to jar files in container
-SRC_DIR="/home/user/Documents/pentest/RD/gadget/sources/keycloack"
+SRC_DIR="$2"
 DB_DIR="/home/user/Documents/pentest/RD/gadget/files/codeql/databases"
 SARIF_DIR="/home/user/Documents/pentest/RD/gadget/files/codeql/sarif"
 DECOMP_JAR="/home/user/Documents/pentest/tools/vineflower-1.11.2.jar" # Path to FernFlower jar
 CODEQL_CMD="codeql"      # Path to codeql executable
 QLS_FILE="/mnt/mount/tools/QLinspector/ql/java/src/suites/qlinspector-java.qls"  # CodeQL query suite
-STATE_FILE="$SRC_DIR/.processed_jars"  # Track last processed jars
+STATE_FILE="$SRC_DIR/.processed_jars"
+FAIL_LOG="$SARIF_DIR/failures.log"
 DOCKER_KC="1b9fcd33885f"
 
 
@@ -47,38 +48,40 @@ run_codeql_queries() {
     local db_dir="$1"
     local sarif_output="$2"
     echo "[INFO] Running CodeQL queries on $db_dir -> $sarif_output"
-    "$CODEQL_CMD" database analyze "$db_dir" "$QLS_FILE" --rerun --no-sarif-add-file-contents --no-sarif-add-snippets --max-paths=2 --format=sarif-latest --output="$sarif_output" || { echo "[ERROR] CodeQL analysis failed"; return 1; }
+    "$CODEQL_CMD" database analyze "$db_dir" "$QLS_FILE" --ram=12288 --rerun --no-sarif-add-file-contents --no-sarif-add-snippets --max-paths=2 --format=sarif-latest --output="$sarif_output" || { echo "[ERROR] CodeQL analysis failed"; return 1; }
 }
 
 # Function: cleanup if no results
 cleanup_if_empty() {
     local jar_name="$1"
-    local src_dir="$2"
-    local decomp_dir="$3"
-    local db_dir="$4"
-    local sarif_output="$5"
-    local jar_local="$6"
+    local decomp_dir="$2"
+    local db_dir="$3"
+    local sarif_output="$4"
+    local jar_local="$5"
 
-    if [ -f "$sarif_output" ]; then
-        # Parse SARIF with jq to see if "results" array is empty
-        local result_count
+    local result_count=0
+
+    # 1. Check if the SARIF exists and has results
+    if [[ -f "$sarif_output" ]]; then
         result_count=$(jq '[.runs[].results[]?] | length' "$sarif_output" 2>/dev/null || echo 0)
+    fi
 
-        if [ "$result_count" -eq 0 ]; then
-            echo "[INFO] No CodeQL results for $jar_name, cleaning up..."
-            rm -rf "$src_dir" "$decomp_dir"
-            rm -rf "$db_dir"
-            rm -f "$sarif_output"
-            rm -f "$jar_local"
-        else
-            echo "[INFO] Found $result_count results for $jar_name, keeping files."
-        fi
+    # 2. Decide: Keep or Clean
+    if [[ "$result_count" -gt 0 ]]; then
+        echo "[INFO] Found $result_count results for $jar_name, keeping files."
     else
-        echo "[INFO] SARIF file not found for $jar_name, cleaning up..."
-        rm -rf "$src_dir" "$decomp_dir"
-        rm -rf "$db_dir"
+        echo "[INFO] No results or SARIF missing for $jar_name, cleaning up..."
+        
+        rm -rf "$decomp_dir" "$db_dir" "$sarif_output" "$jar_local"
     fi
 }
+
+record_failure() {
+    local jar_name="$1"
+    local reason="$2"
+    echo "$(date '+%F %T') | $jar_name | $reason" >> "$FAIL_LOG"
+}
+
 
 # Function: process single jar
 process_jar() {
@@ -86,7 +89,6 @@ process_jar() {
 
     local jar_name=$(basename "$jar_path" .jar)
     local jar_local="$SRC_DIR/$jar_name.jar"
-    local jar_src_dir="$SRC_DIR/$jar_name"
     local decomp_dir="$SRC_DIR/${jar_name}_decomp"
     local db_dir="$DB_DIR/${jar_name}_db"
     local sarif_output="$SARIF_DIR/${jar_name}.sarif"
@@ -101,14 +103,25 @@ process_jar() {
 
     # Decompile if decomp folder does not exist
     if [ ! -d "$decomp_dir" ]; then
-        decompile_jar "$jar_local" "$decomp_dir" || return
+        decompile_jar "$jar_local" "$decomp_dir" >/dev/null || return
     else
         echo "[INFO] Decompiled folder $decomp_dir already exists, skipping decompile."
     fi
 
-    create_codeql_db "$decomp_dir" "$db_dir" || return
-    run_codeql_queries "$db_dir" "$sarif_output" || return
-    cleanup_if_empty "$jar_name" "$jar_src_dir" "$decomp_dir" "$db_dir" "$sarif_output" "$jar_local"
+    if ! create_codeql_db "$decomp_dir" "$db_dir"; then
+        echo "[ERROR] DB creation failed — cleaning artifacts for $jar_name"
+        record_failure "$jar_name" "dbcreate_failed"
+        cleanup_if_empty "$jar_name" "$decomp_dir" "$db_dir" "$sarif_output" "$jar_local"
+        return 1
+    fi
+
+    if ! run_codeql_queries "$db_dir" "$sarif_output"; then
+        echo "[ERROR] Analysis failed for $jar_name" >&2
+        record_failure "$jar_name" "analysis_failed"
+        return
+    fi
+
+    cleanup_if_empty "$jar_name" "$decomp_dir" "$db_dir" "$sarif_output" "$jar_local"
 
     # Update state file for resuming
     echo "$jar_path" >> "$STATE_FILE"
