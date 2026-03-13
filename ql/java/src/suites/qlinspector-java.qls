@@ -5,4 +5,5 @@
 - include:
     id:
     - synacktiv/java/objectfactoryfinder
+    - synacktiv/java/shaded-xalan
     - synacktiv/java/qlinspector
