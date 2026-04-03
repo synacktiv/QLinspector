@@ -60,5 +60,27 @@ jobs:
 
       - name: Verify Compilation
         run: |
-          # Ensure all packs (src, ext) actually compile by 'creating' them
-          find "ql/${{ matrix.language }}" -name "qlpack.yml" -execdir codeql pack create \;
+          # Variable to track if any pack fails
+          FAILED=0
+
+          # Find all qlpack.yml files in the language directory
+          # We use a while loop to ensure we can catch errors from each execution
+          while read -r pack; do
+            dir=$(dirname "$pack")
+
+            echo "--------------------------------------------------"
+            echo "Compiling pack in: $dir"
+            
+            # Run the command. If it fails, set our FAILED flag to 1
+            if ! codeql pack create "$dir"; then
+              echo "::error::Compilation failed for pack in $dir"
+              FAILED=1
+            fi
+
+          done < <(find "ql/${{ matrix.language }}" -name "qlpack.yml")
+
+          # If any pack failed, exit with a non-zero code to fail the CI job
+          if [ $FAILED -ne 0 ]; then
+            echo "One or more CodeQL packs failed to compile. Check the logs above."
+            exit 1
+          fi
