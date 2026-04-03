@@ -8,8 +8,8 @@
  */
 
 import csharp
-import libs.KnownGadgets
-import libs.GadgetTaintHelpers
+import libs.generic.KnownGadgets
+import libs.generic.GadgetTaintHelpers
 
 from RefType t, RefType dangerousType
 where 

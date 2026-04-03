@@ -11,9 +11,10 @@ import csharp
 import semmle.code.csharp.dataflow.TaintTracking
 private import semmle.code.csharp.security.dataflow.flowsinks.FlowSinks
 import GadgetFinder::PathGraph
-import libs.Sources as Sources
-import libs.GadgetTaintHelpers
-import libs.NewtonsoftJson
+import libs.generic.Sources as Sources
+import libs.generic.GadgetTaintHelpers
+import libs.binaryformatter.Sources
+import libs.newtonsoftjson.Sources
 
 /**
  * A data flow sink for gadget.
@@ -68,7 +69,7 @@ class ObjectMethodSink extends Sink {
 class IEqualityComparerSink extends Sink {
     IEqualityComparerSink(){
         exists(Method m, MethodCall mc  |
-            getASuperType*(mc.getARuntimeTarget().getDeclaringType()).hasFullyQualifiedName(["System.Collections", "System.Collections.Generic"], ["IEqualityComparer", "IEqualityComparer<T>"]) and
+            mc.getARuntimeTarget().getDeclaringType().getASuperType*().hasFullyQualifiedName(["System.Collections", "System.Collections.Generic"], ["IEqualityComparer", "IEqualityComparer<T>"]) and
             m.hasName(["GetHashCode", "Equals"]) and
             m.getACall() = mc and
             mc.getAnArgument() = this.asExpr() and

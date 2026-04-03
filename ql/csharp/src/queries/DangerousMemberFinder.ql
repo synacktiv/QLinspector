@@ -8,8 +8,8 @@
  */
 
 import csharp
-import libs.KnownGadgets
-import libs.GadgetTaintHelpers
+import libs.generic.KnownGadgets
+import libs.generic.GadgetTaintHelpers
 
 predicate isDangerousType(Type t){
   t instanceof KnownDangerousType or
