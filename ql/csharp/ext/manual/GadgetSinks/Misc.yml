@@ -1,0 +1,42 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sinkModel
+    data:
+      - ["System", "Activator", True, "CreateInstance", "(System.Type)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.Type,System.Type)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.Type,System.Type,System.Type,System.Type,System.Type)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.Type,System.Type,System.Type,System.Type,System.Type,System.Type)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.Type,System.Type,System.Type)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.String,System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.String,System.String,System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String,System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.AppDomain,System.AppDomain,System.AppDomain)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain,System.AppDomain)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.ActivationContext)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "Activator", True, "CreateInstance", "(System.ActivationContext,System.ActivationContext)", "", "Argument[0]", "gadget-sink", "manual"]
+      #
+      - ["System", "AppDomain", True, "SetData", "(System.String,System.Object)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System", "AppDomain", True, "SetData", "(System.String,System.Object)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System", "AppDomain", True, "Deserialize", "(System.Byte[])", "", "Argument[0]", "gadget-sink", "manual"]
+      #
+      - ["System.DirectoryServices", "DirectoryEntry", True, "DirectoryEntry", "(System.Object)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.DirectoryServices", "DirectoryEntry", True, "DirectoryEntry", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.DirectoryServices", "DirectoryEntry", True, "DirectoryEntry", "(System.String,System.String,System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.DirectoryServices", "DirectoryEntry", True, "DirectoryEntry", "(System.String,System.String,System.String,System.DirectoryServices.AuthenticationTypes)", "", "Argument[0]", "gadget-sink", "manual"]
+      #
+      - ["System.Resources", "ResourceReader", True, "ResourceReader", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Resources", "ResourceReader", True, "ResourceReader", "(System.IO.Stream)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Resources", "ResourceManager", True, "GetObject", "(System.String,System.Globalization.CultureInfo)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Resources", "ResourceManager", True, "GetObject", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Resources", "ResourceSet", True, "ResourceSet", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Resources", "ResourceSet", True, "ResourceSet", "(System.IO.Stream)", "", "Argument[0]", "gadget-sink", "manual"]
+      #
+      - ["System.Configuration", "SettingsPropertyValue", True, "SettingsPropertyValue", "(System.Configuration.SettingsProperty)", "", "Argument[0]", "gadget-sink", "manual"]
+      #
+      - ["System", "AppDomainSetup", True, "set_ApplicationBase", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+
+

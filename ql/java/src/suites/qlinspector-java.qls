@@ -1,0 +1,9 @@
+- description: "QLinspector query suite for Java."
+
+- queries: '.'
+  from: synacktiv/qlinspector-java-queries
+- include:
+    id:
+    - synacktiv/java/objectfactoryfinder
+    - synacktiv/java/shaded-xalan
+    - synacktiv/java/qlinspector

@@ -12,7 +12,7 @@ $ git clone https://github.com/synacktiv/QLinspector.git
 
 Search for gadgets:
 ```sh
-$ codeql database analyze log4j --format=sarif-latest --output=log4j.sarif ./QLinspector/
+$ codeql database analyze log4j --format=sarif-latest --output=log4j.sarif --search-path=./QLinspector/ synacktiv/qlinspector-java-queries
 ```
 
 ## Queries

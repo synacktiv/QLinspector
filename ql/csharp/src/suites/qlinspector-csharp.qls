@@ -1,0 +1,9 @@
+- description: "QLinspector query suite for C#."
+
+- queries: '.'
+  from: synacktiv/qlinspector-csharp-queries
+- include:
+    id:
+    - synacktiv/csharp/dangeroustypefinder
+    - synacktiv/csharp/qlinspector-binaryformatter
+    - synacktiv/csharp/qlinspector-newtonsoftjson

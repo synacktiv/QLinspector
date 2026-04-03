@@ -1,0 +1,6 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sinkModel
+    data:
+      - ["System.IO", "Path", True, "GetFullPath", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]

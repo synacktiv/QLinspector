@@ -1,0 +1,15 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sinkModel
+    data:
+      - ["System.Management.Automation", "PowerShell", True, "AddCommand", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "AddScript", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "Create", "(System.Management.Automation.RunspaceMode)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "AddCommand", "(System.Management.Automation.Runspaces.Command)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "AddCommand", "(System.Management.Automation.CommandInfo)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "Create", "(System.Management.Automation.Runspaces.InitialSessionState)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "Create", "(System.Boolean,System.Management.Automation.PSCommand,System.Collections.ObjectModel.Collection<System.Management.Automation.PSCommand>)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "AddCommand", "(System.String,System.Boolean)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "AddScript", "(System.String,System.Boolean)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Management.Automation", "PowerShell", True, "set_Commands", "(System.Management.Automation.PSCommand)", "", "Argument[0]", "gadget-sink", "manual"]

@@ -1,0 +1,19 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+      - ["java.net", "URLClassLoader", True, "newInstance", "(URL[])", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "newInstance", "(URL[],ClassLoader)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "URLClassLoader", "(String,URL[],ClassLoader)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "URLClassLoader", "(String,URL[],ClassLoader)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "URLClassLoader", "(String,URL[],ClassLoader,URLStreamHandlerFactory)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "URLClassLoader", "(String,URL[],ClassLoader,URLStreamHandlerFactory)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "URLClassLoader", "(URL[],ClassLoader)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "URLClassLoader", "(URL[],ClassLoader,URLStreamHandlerFactory)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["java.net", "URLClassLoader", True, "addURL", "(URL)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["javax.management.loading", "MLet", True, "addURL", "(String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["javax.management.loading", "MLet", True, "	readExternal", "(ObjectInputStream)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["javax.management.loading", "MLetMBean", True, "getMBeansFromURL", "(String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["javax.management.loading", "MLetMBean", True, "getMBeansFromURL", "(URL)", "", "Argument[0]", "gadget-sink", "manual"]
+  

@@ -1,0 +1,9 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sinkModel
+    data:
+      - ["System.Reflection", "Assembly", True, "LoadFrom", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Reflection", "Assembly", True, "LoadFile", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Reflection", "Assembly", True, "Load", "(System.Byte[])", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Reflection", "Assembly", True, "Load", "(System.Byte[],System.Byte[])", "", "Argument[0]", "gadget-sink", "manual"]

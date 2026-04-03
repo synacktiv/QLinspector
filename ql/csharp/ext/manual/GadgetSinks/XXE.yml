@@ -1,0 +1,10 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sinkModel
+    data:
+      - ["System.Xml", "XmlDocument", True, "Load", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Xml", "XmlDocument", True, "LoadXml", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Xml", "XmlDocument", True, "Load", "(System.IO.Stream)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Xml", "XmlDocument", True, "Load", "(System.IO.TextReader)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Xml", "XmlDocument", True, "Load", "(System.Xml.XmlReader)", "", "Argument[0]", "gadget-sink", "manual"]

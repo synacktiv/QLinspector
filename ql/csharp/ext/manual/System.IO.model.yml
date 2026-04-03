@@ -1,0 +1,7 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: summaryModel
+    data:
+     - ["System.IO", "MemoryStream", False, "MemoryStream", "(System.Byte[])", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      

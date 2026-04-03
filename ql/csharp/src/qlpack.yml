@@ -1,0 +1,9 @@
+---
+name: synacktiv/qlinspector-csharp-queries
+version: 1.0.0
+library: false
+authors: hugow
+dependencies:
+  codeql/csharp-all: "*"
+  synacktiv/qlinspector-csharp-extensions: "*"
+defaultSuiteFile: suites/qlinspector-csharp.qls

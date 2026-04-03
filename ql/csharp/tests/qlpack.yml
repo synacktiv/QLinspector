@@ -1,0 +1,9 @@
+name: synacktiv/qlinspector-csharp-tests
+groups: [csharp, test]
+dependencies:
+  codeql/csharp-all: "*"
+  codeql/csharp-queries: "*"
+  synacktiv/qlinspector-csharp-extensions: "*"
+  synacktiv/qlinspector-csharp-queries: "*"
+extractor: csharp
+tests: .

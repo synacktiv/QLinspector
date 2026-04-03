@@ -1,0 +1,18 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: summaryModel
+    data:
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.IO.Stream,System.Xml.XmlNodeType,System.Xml.XmlParserContext)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.String)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.String,System.IO.Stream,System.Xml.XmlNameTable)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.String,System.IO.TextReader,System.Xml.XmlNameTable)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.String,System.Xml.XmlNameTable)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.String,System.Xml.XmlNodeType,System.Xml.XmlParserContext)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.IO.Stream)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.IO.Stream,System.Xml.XmlNameTable)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.IO.TextReader)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.IO.TextReader,System.Xml.XmlNameTable)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.String,System.IO.Stream)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlTextReader", False, "XmlTextReader", "(System.String,System.IO.TextReader)", "", "Argument[0]", "Argument[this]", "taint", "manual"]
+      - ["System.Xml", "XmlDictionaryReader", True, "ReadContentAsBase64", "()",  "", "Argument[this]", "ReturnValue", "taint", "manual"]

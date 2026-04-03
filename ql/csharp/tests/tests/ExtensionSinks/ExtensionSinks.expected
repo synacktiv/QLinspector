@@ -1,0 +1,288 @@
+| ExtensionSinks.cs:62:65:62:119 | default(...) |
+| ExtensionSinks.cs:67:66:67:120 | default(...) |
+| ExtensionSinks.cs:73:27:73:38 | access to field taintedBytes |
+| ExtensionSinks.cs:79:27:79:42 | access to field taintedXmlReader |
+| ExtensionSinks.cs:85:27:85:42 | access to field taintedXmlReader |
+| ExtensionSinks.cs:91:55:91:67 | access to field taintedString |
+| ExtensionSinks.cs:96:96:96:108 | access to field taintedStream |
+| ExtensionSinks.cs:102:28:102:49 | default(...) |
+| ExtensionSinks.cs:108:31:108:52 | default(...) |
+| ExtensionSinks.cs:114:25:114:64 | default(...) |
+| ExtensionSinks.cs:120:29:120:41 | access to field taintedStream |
+| ExtensionSinks.cs:126:37:126:55 | access to field taintedBinaryReader |
+| ExtensionSinks.cs:132:29:132:47 | access to field taintedBinaryReader |
+| ExtensionSinks.cs:138:29:138:47 | access to field taintedBinaryReader |
+| ExtensionSinks.cs:144:35:144:46 | access to field taintedBytes |
+| ExtensionSinks.cs:149:107:149:119 | access to field taintedString |
+| ExtensionSinks.cs:154:131:154:143 | access to field taintedString |
+| ExtensionSinks.cs:160:41:160:53 | access to field taintedString |
+| ExtensionSinks.cs:166:120:166:132 | access to field taintedStream |
+| ExtensionSinks.cs:172:44:172:74 | default(...) |
+| ExtensionSinks.cs:178:67:178:103 | default(...) |
+| ExtensionSinks.cs:184:49:184:60 | access to field taintedBytes |
+| ExtensionSinks.cs:190:48:190:59 | access to field taintedBytes |
+| ExtensionSinks.cs:196:84:196:96 | access to field taintedStream |
+| ExtensionSinks.cs:196:99:196:123 | default(...) |
+| ExtensionSinks.cs:196:126:196:150 | default(...) |
+| ExtensionSinks.cs:202:84:202:108 | default(...) |
+| ExtensionSinks.cs:202:111:202:123 | access to field taintedStream |
+| ExtensionSinks.cs:202:126:202:150 | default(...) |
+| ExtensionSinks.cs:208:84:208:108 | default(...) |
+| ExtensionSinks.cs:208:111:208:135 | default(...) |
+| ExtensionSinks.cs:208:138:208:150 | access to field taintedStream |
+| ExtensionSinks.cs:214:25:214:46 | default(...) |
+| ExtensionSinks.cs:220:49:220:70 | default(...) |
+| ExtensionSinks.cs:226:47:226:68 | default(...) |
+| ExtensionSinks.cs:232:49:232:70 | default(...) |
+| ExtensionSinks.cs:238:25:238:46 | default(...) |
+| ExtensionSinks.cs:244:25:244:46 | default(...) |
+| ExtensionSinks.cs:250:49:250:70 | default(...) |
+| ExtensionSinks.cs:256:49:256:70 | default(...) |
+| ExtensionSinks.cs:262:47:262:68 | default(...) |
+| ExtensionSinks.cs:268:47:268:68 | default(...) |
+| ExtensionSinks.cs:274:74:274:95 | default(...) |
+| ExtensionSinks.cs:280:74:280:95 | default(...) |
+| ExtensionSinks.cs:286:38:286:59 | default(...) |
+| ExtensionSinks.cs:292:50:292:62 | access to field taintedStream |
+| ExtensionSinks.cs:298:25:298:37 | access to field taintedStream |
+| ExtensionSinks.cs:304:25:304:37 | access to field taintedStream |
+| ExtensionSinks.cs:310:25:310:37 | access to field taintedReader |
+| ExtensionSinks.cs:316:25:316:37 | access to field taintedReader |
+| ExtensionSinks.cs:322:25:322:37 | access to field taintedString |
+| ExtensionSinks.cs:328:25:328:37 | access to field taintedString |
+| ExtensionSinks.cs:334:25:334:40 | access to field taintedXmlReader |
+| ExtensionSinks.cs:340:25:340:40 | access to field taintedXmlReader |
+| ExtensionSinks.cs:346:25:346:40 | access to field taintedXmlReader |
+| ExtensionSinks.cs:352:25:352:40 | access to field taintedXmlReader |
+| ExtensionSinks.cs:358:33:358:48 | access to field taintedXmlReader |
+| ExtensionSinks.cs:364:31:364:43 | access to field taintedStream |
+| ExtensionSinks.cs:370:31:370:43 | access to field taintedReader |
+| ExtensionSinks.cs:376:31:376:43 | access to field taintedString |
+| ExtensionSinks.cs:382:31:382:46 | access to field taintedXmlReader |
+| ExtensionSinks.cs:388:31:388:46 | access to field taintedXmlReader |
+| ExtensionSinks.cs:394:37:394:52 | access to field taintedXmlReader |
+| ExtensionSinks.cs:400:25:400:37 | access to field taintedStream |
+| ExtensionSinks.cs:406:25:406:37 | access to field taintedReader |
+| ExtensionSinks.cs:412:25:412:37 | access to field taintedString |
+| ExtensionSinks.cs:418:25:418:40 | access to field taintedXmlReader |
+| ExtensionSinks.cs:424:25:424:40 | access to field taintedXmlReader |
+| ExtensionSinks.cs:430:25:430:40 | access to field taintedXmlReader |
+| ExtensionSinks.cs:436:33:436:48 | access to field taintedXmlReader |
+| ExtensionSinks.cs:442:31:442:43 | access to field taintedStream |
+| ExtensionSinks.cs:448:31:448:43 | access to field taintedReader |
+| ExtensionSinks.cs:454:31:454:43 | access to field taintedString |
+| ExtensionSinks.cs:460:31:460:46 | access to field taintedXmlReader |
+| ExtensionSinks.cs:466:31:466:46 | access to field taintedXmlReader |
+| ExtensionSinks.cs:472:37:472:52 | access to field taintedXmlReader |
+| ExtensionSinks.cs:478:40:478:52 | access to field taintedString |
+| ExtensionSinks.cs:484:26:484:38 | access to field taintedString |
+| ExtensionSinks.cs:490:26:490:38 | access to field taintedString |
+| ExtensionSinks.cs:496:26:496:38 | access to field taintedString |
+| ExtensionSinks.cs:502:26:502:38 | access to field taintedString |
+| ExtensionSinks.cs:508:26:508:38 | access to field taintedString |
+| ExtensionSinks.cs:514:26:514:38 | access to field taintedString |
+| ExtensionSinks.cs:520:26:520:38 | access to field taintedString |
+| ExtensionSinks.cs:526:26:526:38 | access to field taintedString |
+| ExtensionSinks.cs:532:26:532:38 | access to field taintedString |
+| ExtensionSinks.cs:538:33:538:45 | access to field taintedString |
+| ExtensionSinks.cs:544:33:544:45 | access to field taintedString |
+| ExtensionSinks.cs:550:126:550:169 | default(...) |
+| ExtensionSinks.cs:556:120:556:163 | default(...) |
+| ExtensionSinks.cs:562:22:562:78 | default(...) |
+| ExtensionSinks.cs:568:22:568:83 | default(...) |
+| ExtensionSinks.cs:574:22:574:78 | default(...) |
+| ExtensionSinks.cs:580:31:580:70 | default(...) |
+| ExtensionSinks.cs:586:29:586:41 | access to field taintedString |
+| ExtensionSinks.cs:592:32:592:51 | default(...) |
+| ExtensionSinks.cs:598:32:598:51 | default(...) |
+| ExtensionSinks.cs:604:32:604:51 | default(...) |
+| ExtensionSinks.cs:610:32:610:56 | default(...) |
+| ExtensionSinks.cs:616:32:616:51 | default(...) |
+| ExtensionSinks.cs:622:32:622:51 | default(...) |
+| ExtensionSinks.cs:628:32:628:44 | access to field taintedString |
+| ExtensionSinks.cs:634:32:634:44 | access to field taintedString |
+| ExtensionSinks.cs:640:32:640:44 | access to field taintedString |
+| ExtensionSinks.cs:646:32:646:44 | access to field taintedString |
+| ExtensionSinks.cs:652:32:652:44 | access to field taintedString |
+| ExtensionSinks.cs:658:32:658:56 | default(...) |
+| ExtensionSinks.cs:664:32:664:56 | default(...) |
+| ExtensionSinks.cs:670:32:670:64 | default(...) |
+| ExtensionSinks.cs:676:32:676:64 | default(...) |
+| ExtensionSinks.cs:682:25:682:37 | access to field taintedString |
+| ExtensionSinks.cs:682:40:682:61 | default(...) |
+| ExtensionSinks.cs:688:25:688:46 | default(...) |
+| ExtensionSinks.cs:688:49:688:70 | default(...) |
+| ExtensionSinks.cs:694:29:694:40 | access to field taintedBytes |
+| ExtensionSinks.cs:699:67:699:88 | default(...) |
+| ExtensionSinks.cs:704:67:704:79 | access to field taintedString |
+| ExtensionSinks.cs:709:67:709:79 | access to field taintedString |
+| ExtensionSinks.cs:714:67:714:79 | access to field taintedString |
+| ExtensionSinks.cs:719:59:719:71 | access to field taintedString |
+| ExtensionSinks.cs:724:59:724:71 | access to field taintedStream |
+| ExtensionSinks.cs:730:27:730:39 | access to field taintedString |
+| ExtensionSinks.cs:736:27:736:39 | access to field taintedString |
+| ExtensionSinks.cs:741:56:741:68 | access to field taintedString |
+| ExtensionSinks.cs:746:56:746:68 | access to field taintedStream |
+| ExtensionSinks.cs:751:70:751:115 | default(...) |
+| ExtensionSinks.cs:757:37:757:49 | access to field taintedString |
+| ExtensionSinks.cs:762:89:762:112 | default(...) |
+| ExtensionSinks.cs:768:81:768:104 | default(...) |
+| ExtensionSinks.cs:774:85:774:108 | default(...) |
+| ExtensionSinks.cs:780:28:780:40 | access to field taintedString |
+| ExtensionSinks.cs:786:27:786:39 | access to field taintedString |
+| ExtensionSinks.cs:792:24:792:73 | default(...) |
+| ExtensionSinks.cs:798:28:798:82 | default(...) |
+| ExtensionSinks.cs:804:28:804:76 | default(...) |
+| ExtensionSinks.cs:810:24:810:90 | default(...) |
+| ExtensionSinks.cs:816:24:816:46 | default(...) |
+| ExtensionSinks.cs:822:28:822:40 | access to field taintedString |
+| ExtensionSinks.cs:828:27:828:39 | access to field taintedString |
+| ExtensionSinks.cs:834:30:834:76 | default(...) |
+| ExtensionSinks.cs:840:26:840:38 | access to field taintedString |
+| ExtensionSinks.cs:846:26:846:38 | access to field taintedString |
+| ExtensionSinks.cs:852:22:852:33 | access to field taintedBytes |
+| ExtensionSinks.cs:858:22:858:33 | access to field taintedBytes |
+| ExtensionSinks.cs:864:24:864:42 | default(...) |
+| ExtensionSinks.cs:870:26:870:44 | default(...) |
+| ExtensionSinks.cs:876:27:876:45 | default(...) |
+| ExtensionSinks.cs:882:30:882:48 | default(...) |
+| ExtensionSinks.cs:888:32:888:50 | default(...) |
+| ExtensionSinks.cs:894:31:894:49 | default(...) |
+| ExtensionSinks.cs:900:32:900:50 | default(...) |
+| ExtensionSinks.cs:906:37:906:55 | default(...) |
+| ExtensionSinks.cs:912:35:912:53 | default(...) |
+| ExtensionSinks.cs:918:24:918:36 | access to field taintedString |
+| ExtensionSinks.cs:924:26:924:38 | access to field taintedString |
+| ExtensionSinks.cs:930:27:930:39 | access to field taintedString |
+| ExtensionSinks.cs:936:30:936:42 | access to field taintedString |
+| ExtensionSinks.cs:942:32:942:44 | access to field taintedString |
+| ExtensionSinks.cs:948:30:948:42 | access to field taintedString |
+| ExtensionSinks.cs:954:28:954:40 | access to field taintedString |
+| ExtensionSinks.cs:960:27:960:39 | access to field taintedString |
+| ExtensionSinks.cs:966:30:966:42 | access to field taintedString |
+| ExtensionSinks.cs:972:30:972:48 | default(...) |
+| ExtensionSinks.cs:978:28:978:46 | default(...) |
+| ExtensionSinks.cs:984:27:984:45 | default(...) |
+| ExtensionSinks.cs:990:30:990:48 | default(...) |
+| ExtensionSinks.cs:996:32:996:50 | default(...) |
+| ExtensionSinks.cs:1002:35:1002:53 | default(...) |
+| ExtensionSinks.cs:1008:35:1008:53 | default(...) |
+| ExtensionSinks.cs:1014:33:1014:51 | default(...) |
+| ExtensionSinks.cs:1020:28:1020:40 | access to field taintedString |
+| ExtensionSinks.cs:1026:28:1026:46 | default(...) |
+| ExtensionSinks.cs:1032:33:1032:51 | default(...) |
+| ExtensionSinks.cs:1038:28:1038:40 | access to field taintedString |
+| ExtensionSinks.cs:1044:28:1044:46 | default(...) |
+| ExtensionSinks.cs:1050:33:1050:51 | default(...) |
+| ExtensionSinks.cs:1056:28:1056:40 | access to field taintedString |
+| ExtensionSinks.cs:1062:30:1062:42 | access to field taintedString |
+| ExtensionSinks.cs:1068:28:1068:46 | default(...) |
+| ExtensionSinks.cs:1074:30:1074:48 | default(...) |
+| ExtensionSinks.cs:1080:35:1080:53 | default(...) |
+| ExtensionSinks.cs:1086:33:1086:51 | default(...) |
+| ExtensionSinks.cs:1092:30:1092:42 | access to field taintedString |
+| ExtensionSinks.cs:1098:30:1098:48 | default(...) |
+| ExtensionSinks.cs:1104:35:1104:53 | default(...) |
+| ExtensionSinks.cs:1110:30:1110:42 | access to field taintedString |
+| ExtensionSinks.cs:1116:30:1116:48 | default(...) |
+| ExtensionSinks.cs:1122:35:1122:53 | default(...) |
+| ExtensionSinks.cs:1128:31:1128:49 | default(...) |
+| ExtensionSinks.cs:1134:37:1134:55 | default(...) |
+| ExtensionSinks.cs:1140:35:1140:53 | default(...) |
+| ExtensionSinks.cs:1146:32:1146:50 | default(...) |
+| ExtensionSinks.cs:1152:35:1152:53 | default(...) |
+| ExtensionSinks.cs:1158:35:1158:53 | default(...) |
+| ExtensionSinks.cs:1164:33:1164:51 | default(...) |
+| ExtensionSinks.cs:1170:33:1170:51 | default(...) |
+| ExtensionSinks.cs:1176:35:1176:53 | default(...) |
+| ExtensionSinks.cs:1182:33:1182:51 | default(...) |
+| ExtensionSinks.cs:1188:32:1188:50 | default(...) |
+| ExtensionSinks.cs:1194:35:1194:53 | default(...) |
+| ExtensionSinks.cs:1200:32:1200:50 | default(...) |
+| ExtensionSinks.cs:1206:26:1206:44 | default(...) |
+| ExtensionSinks.cs:1212:29:1212:47 | default(...) |
+| ExtensionSinks.cs:1218:32:1218:44 | access to field taintedString |
+| ExtensionSinks.cs:1224:35:1224:47 | access to field taintedString |
+| ExtensionSinks.cs:1230:32:1230:44 | access to field taintedString |
+| ExtensionSinks.cs:1236:26:1236:38 | access to field taintedString |
+| ExtensionSinks.cs:1242:29:1242:41 | access to field taintedString |
+| ExtensionSinks.cs:1248:26:1248:38 | access to field taintedString |
+| ExtensionSinks.cs:1254:26:1254:44 | default(...) |
+| ExtensionSinks.cs:1260:26:1260:38 | access to field taintedString |
+| ExtensionSinks.cs:1266:29:1266:41 | access to field taintedString |
+| ExtensionSinks.cs:1272:26:1272:44 | default(...) |
+| ExtensionSinks.cs:1278:29:1278:47 | default(...) |
+| ExtensionSinks.cs:1284:26:1284:38 | access to field taintedString |
+| ExtensionSinks.cs:1290:26:1290:44 | default(...) |
+| ExtensionSinks.cs:1296:27:1296:39 | access to field taintedString |
+| ExtensionSinks.cs:1302:26:1302:38 | access to field taintedString |
+| ExtensionSinks.cs:1308:27:1308:45 | default(...) |
+| ExtensionSinks.cs:1314:26:1314:44 | default(...) |
+| ExtensionSinks.cs:1320:27:1320:39 | access to field taintedString |
+| ExtensionSinks.cs:1326:26:1326:38 | access to field taintedString |
+| ExtensionSinks.cs:1332:27:1332:45 | default(...) |
+| ExtensionSinks.cs:1338:26:1338:44 | default(...) |
+| ExtensionSinks.cs:1344:86:1344:107 | default(...) |
+| ExtensionSinks.cs:1344:110:1344:133 | default(...) |
+| ExtensionSinks.cs:1350:30:1350:51 | default(...) |
+| ExtensionSinks.cs:1350:103:1350:148 | default(...) |
+| ExtensionSinks.cs:1356:30:1356:51 | default(...) |
+| ExtensionSinks.cs:1356:54:1356:77 | default(...) |
+| ExtensionSinks.cs:1362:86:1362:98 | access to field taintedString |
+| ExtensionSinks.cs:1362:101:1362:124 | default(...) |
+| ExtensionSinks.cs:1368:86:1368:98 | access to field taintedString |
+| ExtensionSinks.cs:1368:150:1368:195 | default(...) |
+| ExtensionSinks.cs:1373:114:1373:151 | default(...) |
+| ExtensionSinks.cs:1378:114:1378:151 | default(...) |
+| ExtensionSinks.cs:1384:86:1384:107 | default(...) |
+| ExtensionSinks.cs:1384:159:1384:204 | default(...) |
+| ExtensionSinks.cs:1389:61:1389:73 | access to field taintedString |
+| ExtensionSinks.cs:1395:30:1395:42 | access to field taintedString |
+| ExtensionSinks.cs:1395:45:1395:68 | default(...) |
+| ExtensionSinks.cs:1401:30:1401:42 | access to field taintedString |
+| ExtensionSinks.cs:1401:94:1401:139 | default(...) |
+| ExtensionSinks.cs:1406:61:1406:101 | default(...) |
+| ExtensionSinks.cs:1411:70:1411:107 | default(...) |
+| ExtensionSinks.cs:1416:61:1416:101 | default(...) |
+| ExtensionSinks.cs:1421:61:1421:101 | default(...) |
+| ExtensionSinks.cs:1426:61:1426:73 | access to field taintedString |
+| ExtensionSinks.cs:1431:61:1431:101 | default(...) |
+| ExtensionSinks.cs:1436:106:1436:146 | default(...) |
+| ExtensionSinks.cs:1436:149:1436:191 | default(...) |
+| ExtensionSinks.cs:1441:110:1441:152 | default(...) |
+| ExtensionSinks.cs:1446:106:1446:146 | default(...) |
+| ExtensionSinks.cs:1446:149:1446:191 | default(...) |
+| ExtensionSinks.cs:1451:62:1451:102 | default(...) |
+| ExtensionSinks.cs:1451:105:1451:147 | default(...) |
+| ExtensionSinks.cs:1456:62:1456:83 | default(...) |
+| ExtensionSinks.cs:1456:86:1456:128 | default(...) |
+| ExtensionSinks.cs:1461:81:1461:93 | access to field taintedString |
+| ExtensionSinks.cs:1466:62:1466:74 | access to field taintedString |
+| ExtensionSinks.cs:1471:57:1471:69 | access to field taintedString |
+| ExtensionSinks.cs:1477:28:1477:40 | access to field taintedString |
+| ExtensionSinks.cs:1482:62:1482:102 | default(...) |
+| ExtensionSinks.cs:1487:62:1487:102 | default(...) |
+| ExtensionSinks.cs:1487:105:1487:147 | default(...) |
+| ExtensionSinks.cs:1492:62:1492:74 | access to field taintedString |
+| ExtensionSinks.cs:1492:77:1492:119 | default(...) |
+| ExtensionSinks.cs:1498:22:1498:34 | access to field taintedStream |
+| ExtensionSinks.cs:1504:22:1504:34 | access to field taintedStream |
+| ExtensionSinks.cs:1510:112:1510:127 | access to field taintedXmlReader |
+| ExtensionSinks.cs:1516:124:1516:139 | access to field taintedXmlReader |
+| ExtensionSinks.cs:1522:124:1522:139 | access to field taintedXmlReader |
+| ExtensionSinks.cs:1528:29:1528:44 | access to field taintedXmlReader |
+| ExtensionSinks.cs:1534:87:1534:127 | default(...) |
+| ExtensionSinks.cs:1540:87:1540:127 | default(...) |
+| ExtensionSinks.cs:1546:105:1546:117 | access to field taintedString |
+| ExtensionSinks.cs:1552:22:1552:34 | access to field taintedString |
+| ExtensionSinks.cs:1558:31:1558:43 | access to field taintedString |
+| ExtensionSinks.cs:1564:36:1564:51 | access to field taintedXmlReader |
+| ExtensionSinks.cs:1570:27:1570:39 | access to field taintedStream |
+| ExtensionSinks.cs:1576:29:1576:98 | default(...) |
+| ExtensionSinks.cs:1582:29:1582:98 | default(...) |
+| ExtensionSinks.cs:1588:31:1588:100 | default(...) |
+| ExtensionSinks.cs:1594:22:1594:34 | access to field taintedString |
+| ExtensionSinks.cs:1600:25:1600:37 | access to field taintedString |
+| ExtensionSinks.cs:1606:22:1606:34 | access to field taintedStream |
+| ExtensionSinks.cs:1612:22:1612:34 | access to field taintedReader |
+| ExtensionSinks.cs:1618:22:1618:37 | access to field taintedXmlReader |

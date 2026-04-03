@@ -1,0 +1,7 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+      - ["jdk.jshell", "JShell", True, "eval", "(String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["jdk.jshell", "SourceCodeAnalysis", True, "wrappers", "(String)", "", "Argument[0]", "gadget-sink", "manual"]

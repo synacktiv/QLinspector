@@ -1,0 +1,8 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sinkModel
+    data:
+      - ["System", "ActivationContext", True, "ActivationContext", "(System.ApplicationIdentity,System.String[])", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System", "ActivationContext", True, "CreateFromNameAndManifests", "(System.ApplicationIdentity,System.String[])", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System", "ActivationContext", True, "CreatePartialActivationContext", "(System.ApplicationIdentity,System.String[])", "", "Argument[1]", "gadget-sink", "manual"]

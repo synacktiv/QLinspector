@@ -1,0 +1,21 @@
+extensions:
+  - addsTo:
+      pack: codeql/csharp-all
+      extensible: sinkModel
+    data:
+      - ["System.Workflow.ComponentModel", "Activity", True, "Load", "(System.IO.Stream,System.Workflow.ComponentModel.Activity)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel", "Activity", True, "Load", "(System.IO.Stream,System.Workflow.ComponentModel.Activity,System.Runtime.Serialization.IFormatter)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Serialization", "WorkflowMarkupSerializer", True, "Deserialize", "(System.ComponentModel.Design.Serialization.IDesignerSerializationManager,System.Xml.XmlReader)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Serialization", "WorkflowMarkupSerializationHelpers", True, "LoadXomlDocument", "(System.Workflow.ComponentModel.Serialization.WorkflowMarkupSerializationManager,System.Xml.XmlReader,System.String)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Serialization", "WorkflowMarkupSerializationHelpers", True, "LoadXomlDocument", "(System.Workflow.ComponentModel.Serialization.WorkflowMarkupSerializationManager,System.Xml.XmlReader,System.String,System.Workflow.ComponentModel.Serialization.ITypeAuthorizer)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Serialization", "WorkflowMarkupSerializer", True, "Deserialize", "(System.Xml.XmlReader)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "CompositeActivityDesigner", True, "DeserializeActivitiesFromDataObject", "(System.IServiceProvider,System.Windows.Forms.IDataObject)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "CompositeActivityDesigner", True, "DeserializeActivitiesFromDataObject", "(System.IServiceProvider,System.Windows.Forms.IDataObject,System.Boolean)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "WorkflowTheme", True, "Load", "(System.ComponentModel.Design.Serialization.IDesignerSerializationManager,System.String)", "", "Argument[1]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "WorkflowTheme", True, "Load", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "WorkflowDesignerLoader", True, "GetFileReader", "(System.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "WorkflowDesignerLoader", True, "LoadDesignerLayout", "(System.Xml.XmlReader,System.Collections.IList)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "XomlComponentSerializationService", True, "LoadStore", "(System.IO.Stream)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "XomlComponentSerializationService", True, "Deserialize", "(System.ComponentModel.Design.Serialization.SerializationStore)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "XomlComponentSerializationService", True, "Deserialize", "(System.ComponentModel.Design.Serialization.SerializationStore,System.ComponentModel.IContainer)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["System.Workflow.ComponentModel.Design", "XomlComponentSerializationService", True, "DeserializeTo", "(System.ComponentModel.Design.Serialization.SerializationStore,System.ComponentModel.IContainer,System.Boolean,System.Boolean)", "", "Argument[0]", "gadget-sink", "manual"]
