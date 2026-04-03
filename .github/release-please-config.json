@@ -1,0 +1,44 @@
+{
+    "packages": {
+        "ql/java/ext": {
+            "release-type": "simple",
+            "extra-files": [
+                {
+                    "type": "yaml",
+                    "path": "qlpack.yml",
+                    "jsonpath": "$.version"
+                }
+            ]
+        },
+        "ql/java/src": {
+            "release-type": "simple",
+            "extra-files": [
+                {
+                    "type": "yaml",
+                    "path": "qlpack.yml",
+                    "jsonpath": "$.version"
+                }
+            ]
+        },
+        "ql/csharp/ext": {
+            "release-type": "simple",
+            "extra-files": [
+                {
+                    "type": "yaml",
+                    "path": "qlpack.yml",
+                    "jsonpath": "$.version"
+                }
+            ]
+        },
+        "ql/csharp/src": {
+            "release-type": "simple",
+            "extra-files": [
+                {
+                    "type": "yaml",
+                    "path": "qlpack.yml",
+                    "jsonpath": "$.version"
+                }
+            ]
+        }
+    }
+}

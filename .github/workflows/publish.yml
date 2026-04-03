@@ -1,96 +1,71 @@
-name: Publish CodeQL Packs
+name: "CD: Publish CodeQL Packs"
 
 on:
-  #push:
-  #  branches: [main]
   workflow_dispatch:
-
+    inputs:
+      target_language:
+        description: 'Language to publish (leave as "all" to publish everything)'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - java
+          - csharp
 
 jobs:
-  queries:
+  prepare-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      languages: ${{ steps.set-matrix.outputs.languages }}
+    steps:
+      - id: set-matrix
+        run: |
+          # 1. Determine the list of languages based on input vs push
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.target_language }}" != "all" ]]; then
+            # Manual trigger for a single language
+            LITERAL="[\"${{ github.event.inputs.target_language }}\"]"
+          else
+            # Manual 'all' OR a standard Git Push triggers everything
+            LITERAL='["java", "csharp"]'
+          fi
+          
+          echo "languages=$LITERAL" >> $GITHUB_OUTPUT
 
+  publish-packs:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-
     strategy:
       fail-fast: false
       matrix:
-        language: ["csharp", "java"] 
+        language: ${{ fromJson(needs.prepare-matrix.outputs.languages) }}
 
     steps:
-      - uses: actions/checkout@v5
-      - name: Check codeql-LANG-queries (src) pack
-        id: check_version
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - uses: trailofbits/setup-codeql@main
+        with:
+          version: '2.25.1'
+          platform: 'linux64'
+          checksum: '4f070e6cc7009e75aec307ed109c2fcf0501e579c20a31080b893e31209523d5'
+
+      - name: Install Dependencies
+        run: |
+          find ql/${{ matrix.language }} -name "qlpack.yml" -execdir codeql pack install \;
+
+      - name: Publish Packs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PUBLISHED_VERSION=$(gh api /users/Hug0Vincent/packages/container/qlinspector-${{ matrix.language }}-queries/versions --jq '.[0].metadata.container.tags[0]')
-          CURRENT_VERSION=$(grep version ${{ matrix.language }}/src/qlpack.yml | awk '{print $2}')
-
-          echo "Published version: $PUBLISHED_VERSION"
-          echo "Local version: $CURRENT_VERSION"
-
-          if [ "$PUBLISHED_VERSION" != "$CURRENT_VERSION" ]; then
-            echo "publish=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Setup CodeQL
-        id: init
-        if: steps.check_version.outputs.publish == 'true'
-        uses: github/codeql-action/init@v3
-
-      - name: Publish codeql-LANG-queries (src) pack.
-        if: steps.check_version.outputs.publish == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CODEQL_PATH: ${{ steps.init.outputs.codeql-path }}
-        run: |
-          echo "Publishing codeql-${{ matrix.language }}-queries."
-          "${CODEQL_PATH}" pack install "ql/${{ matrix.language }}/src"
-          "${CODEQL_PATH}" pack publish "ql/${{ matrix.language }}/src"
-
-  extensions:
-    runs-on: ubuntu-latest
-
-    permissions:
-      contents: read
-      packages: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: ["csharp"]
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Check codeql-LANG-extensions (ext) pack
-        id: check_version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          PUBLISHED_VERSION=$(gh api /users/githubsecuritylab/packages/container/codeql-${{ matrix.language }}-extensions/versions --jq '.[0].metadata.container.tags[0]')
-          CURRENT_VERSION=$(grep version ${{ matrix.language }}/ext/qlpack.yml | awk '{print $2}')
-
-          echo "Published version: $PUBLISHED_VERSION"
-          echo "Local version: $CURRENT_VERSION"
-          if [ "$PUBLISHED_VERSION" != "$CURRENT_VERSION" ]; then
-            echo "publish=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Setup CodeQL
-        id: init
-        if: steps.check_version.outputs.publish == 'true'
-        uses: github/codeql-action/init@v3
-
-      - name: Publish codeql-LANG-queries (src) pack.
-        if: steps.check_version.outputs.publish == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CODEQL_PATH: ${{ steps.init.outputs.codeql-path }}
-        run: |
-          echo "Publishing codeql-${{ matrix.language }}-queries."
-          "${CODEQL_PATH}" pack install "ql/${{ matrix.language }}/ext"
-          "${CODEQL_PATH}" pack publish "ql/${{ matrix.language }}/ext"
+          # Loop through all packs and attempt to publish
+          # If version exists, it logs a warning and moves to the next one
+          find ql/${{ matrix.language }} -name "qlpack.yml" | while read pack; do
+            dir=$(dirname "$pack")
+            echo "Publishing pack in $dir..."
+            
+            codeql pack publish -- "$dir" || echo "::warning title=Skip Publish::Version in $dir already exists in registry. Skipping."
+          done

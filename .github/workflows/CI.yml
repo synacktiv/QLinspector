@@ -1,0 +1,64 @@
+name: "CI: Build CodeQL Packs"
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'ql/**'
+  push:
+    branches: [ main ]
+    paths:
+      - 'ql/**'
+  workflow_dispatch:
+
+jobs:
+  test-packs:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["java", "csharp"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+
+      - name: Check for changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            changed:
+              - '${{ matrix.language }}/**'
+
+      - name: Skip if no changes
+        if: steps.filter.outputs.changed != 'true' && github.event_name != 'workflow_dispatch'
+        shell: bash
+        run: |
+          echo "No changes detected for ${{ matrix.language }}. Exiting gracefully."
+          exit 0
+
+      - uses: trailofbits/setup-codeql@main
+        with:
+          version: '2.25.1'
+          platform: 'linux64'
+          checksum: '4f070e6cc7009e75aec307ed109c2fcf0501e579c20a31080b893e31209523d5'
+
+      - name: Install Dependencies
+        run: |
+          # Find all packs for the matrix language and install deps
+          find "ql/${{ matrix.language }}" -name "qlpack.yml" -execdir codeql pack install \;
+
+      - name: Run Tests
+        run: |
+          # Run tests for any folder named 'test' inside the language directory
+          if [ -d "ql/${{ matrix.language }}/test" ]; then
+            codeql test run ql/${{ matrix.language }}/test
+          else
+            echo "No tests found for ${{ matrix.language }}, skipping."
+          fi
+
+      - name: Verify Compilation
+        run: |
+          # Ensure all packs (src, ext) actually compile by 'creating' them
+          find "ql/${{ matrix.language }}" -name "qlpack.yml" -execdir codeql pack create \;

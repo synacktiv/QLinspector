@@ -1,6 +1,6 @@
 library: true
 name: synacktiv/qlinspector-csharp-extensions
-version: 1.0.0
+version: 0.0.1
 extensionTargets:
   codeql/csharp-all: '*'
 dataExtensions:
