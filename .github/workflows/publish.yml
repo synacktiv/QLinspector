@@ -65,6 +65,14 @@ jobs:
           # If version exists, it logs a warning and moves to the next one
           find ql/${{ matrix.language }} -name "qlpack.yml" | while read pack; do
             dir=$(dirname "$pack")
+            
+            # SKIP LOGIC: If the directory path contains "/test", skip it.
+            # This handles 'java/test', 'java/src/test', etc.
+            if [[ "$dir" == *"/test"* ]] || [[ "$dir" == *"test/"* ]]; then
+              echo "Skipping test pack: $dir"
+              continue
+            fi
+
             echo "Publishing pack in $dir..."
             
             codeql pack publish -- "$dir" || echo "::warning title=Skip Publish::Version in $dir already exists in registry. Skipping."
