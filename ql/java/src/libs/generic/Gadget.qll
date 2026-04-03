@@ -1,6 +1,6 @@
 import java
-import libs.DangerousMethods
-import libs.Source
+import libs.generic.DangerousMethods
+import libs.generic.Source
 
 
 /* 

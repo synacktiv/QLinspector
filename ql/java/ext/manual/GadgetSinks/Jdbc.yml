@@ -1,0 +1,10 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+      # https://mogwailabs.de/en/blog/2023/04/look-mama-no-templatesimpl/
+      - ["org.h2.jdbcx", "JdbcDataSource", True, "setURL", "(String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.postgresql.ds.common", "BaseDataSource", True, "setURL", "(String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["com.mchange.v2.c3p0", "AbstractComboPooledDataSource", True, "setJdbcUrl", "(String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.h2.jdbc", "JdbcConnection", True, "JdbcConnection", "(String,Properties,String,Object,boolean)", "", "Argument[0]", "gadget-sink", "manual"]

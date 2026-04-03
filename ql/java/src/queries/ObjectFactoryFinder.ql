@@ -8,7 +8,7 @@
  */
 
 import java
-import libs.Source
+import libs.generic.Source
 
 from ObjectFactoryMethod objFactoryMethod
 select objFactoryMethod, "Found ObjectFactory: " + objFactoryMethod.getDeclaringType().toString()

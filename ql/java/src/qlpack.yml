@@ -5,4 +5,5 @@ library: false
 authors: hugow
 dependencies:
   codeql/java-all: "*"
+  synacktiv/qlinspector-java-extensions: "*"
 defaultSuiteFile: suites/qlinspector-java.qls

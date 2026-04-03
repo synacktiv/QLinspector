@@ -8,9 +8,9 @@
  */
 
 import java
-import libs.DangerousMethods
-import libs.Source
-import libs.GadgetHelpers
+import libs.generic.DangerousMethods
+import libs.generic.Source
+import libs.generic.GadgetHelpers
 
 
 /*

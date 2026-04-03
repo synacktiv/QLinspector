@@ -1,0 +1,26 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+      # Text4Shell: https://securitylab.github.com/advisories/GHSL-2022-018_Apache_Commons_Text/
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(char[])", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(char[],int,int)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.CharSequence)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.CharSequence,int,int)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.Object)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.Object,java.util.Map)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.Object,java.util.Map,java.lang.String,java.lang.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.Object,java.util.Properties)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.String)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.String,int,int)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.StringBuffer)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(java.lang.StringBuffer,int,int)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(org.apache.commons.text.TextStringBuilder)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replace", "(org.apache.commons.text.TextStringBuilder,int,int)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replaceIn", "(java.lang.StringBuffer)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replaceIn", "(java.lang.StringBuffer,int,int)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replaceIn", "(java.lang.StringBuilder)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replaceIn", "(java.lang.StringBuilder,int,int)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replaceIn", "(org.apache.commons.text.TextStringBuilder)", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.apache.commons.text", "StringSubstitutor", False, "replaceIn", "(org.apache.commons.text.TextStringBuilder,int,int)", "", "Argument[0]", "gadget-sink", "manual"]

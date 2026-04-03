@@ -160,9 +160,21 @@ class LambdaCallQualifierStep extends GadgetAdditionalTaintStep {
   }
 }
 
+/**
+ * Try to get a callable from a node.
+ * 
+ * If you add a new source type you might 
+ * need to add logic here to see it in the result.
+ * The last condition is however quite permissive.
+ */
 Callable getSourceCallable(DataFlow::Node n){
     result = n.asParameter().getCallable() or 
-    result = n.(DataFlow::InstanceParameterNode).getCallable()
+    exists(Call call |
+      call.getAnArgument() = n.asExpr() |
+      result = call.getCallee()
+    ) or
+    result = n.(DataFlow::InstanceParameterNode).getCallable() or
+    result = n.asExpr().getEnclosingCallable()
 }
   
 /**
@@ -171,4 +183,10 @@ Callable getSourceCallable(DataFlow::Node n){
  */
 string getSourceLocationInfo(DataFlow::Node n){
     result = getSourceCallable(n) + " (" + n.getEnclosingCallable().getDeclaringType().toString() + ":" + n.getLocation().getStartLine() + ":" + n.getLocation().getStartColumn() + ")"
+}
+
+// https://codeql.github.com/docs/ql-language-reference/predicates/#binding-sets
+bindingset[regExp]
+predicate filterSourcePath(DataFlow::Node n, string regExp){
+  n.getLocation().getFile().getAbsolutePath().regexpMatch(regExp)
 }

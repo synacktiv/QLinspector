@@ -1,0 +1,7 @@
+extensions:
+  - addsTo:
+      pack: codeql/java-all
+      extensible: sinkModel
+    data:
+      - ["bsh", "Interpreter", True, "eval", "", "", "Argument[0]", "gadget-sink", "manual"]
+      - ["org.springframework.scripting.bsh", "BshScriptEvaluator", True, "evaluate", "", "", "Argument[0]", "gadget-sink", "manual"]

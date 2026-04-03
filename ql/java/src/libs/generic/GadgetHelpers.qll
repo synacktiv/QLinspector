@@ -1,7 +1,7 @@
 
 import java
-import libs.DangerousMethods
-import libs.Source
+import libs.generic.DangerousMethods
+import libs.generic.Source
 
 
 /* 
@@ -13,7 +13,7 @@ import libs.Source
 class DangerousExpression extends Expr {
   DangerousExpression() {
     ( this instanceof Call and this.(Call).getCallee() instanceof DangerousMethod ) or
-    ( this instanceof LambdaExpr and this.(LambdaExpr).getExprBody().(MethodAccess).getMethod() instanceof DangerousMethod)
+    ( this instanceof LambdaExpr and this.(LambdaExpr).getExprBody().(MethodCall).getMethod() instanceof DangerousMethod)
   }
 }
 
@@ -68,11 +68,11 @@ class RecursiveCallToDangerousMethod extends Callable {
 
 class Sanitizer extends Callable {
   Sanitizer(){
-    hasName(["getIdentifier"]) 
+    hasName([""]) 
   }
 }
 
-query predicate edges(ControlFlowNode node1, ControlFlowNode node2) {
+query predicate edges(Callable node1, Callable node2) {
   /*  
   (
       node1.(MethodCall).getMethod().getAPossibleImplementation() = node2 and
