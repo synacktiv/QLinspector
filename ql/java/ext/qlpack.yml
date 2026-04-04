@@ -1,10 +1,10 @@
 library: true
 name: synacktiv/qlinspector-java-extensions
-version: 0.0.1
+version: 0.0.2
 extensionTargets:
   codeql/java-all: '*'
 dataExtensions:
-  - 'manual/*.yml'
-  - 'manual/**/*.yml'
-  - 'generated/*.yml'
-  - 'generated/**/*.yml'
+  - manual/*.yml
+  - manual/**/*.yml
+  - generated/*.yml
+  - generated/**/*.yml
