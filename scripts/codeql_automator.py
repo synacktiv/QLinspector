@@ -102,8 +102,8 @@ def execute_queries_and_update_json(args, asm, db_folder, target_name, json_data
     sarif_out = Path(args.sarif_out)
 
     for query in args.queries:
-        query_path = Path(args.query_dir) / query if not os.path.exists(query) else query
-        sarif_file = sarif_out / f"{target_name}-{query}.sarif"
+        query_sanitized = query.replace("/", "-").replace(":", "-")
+        sarif_file = sarif_out / f"{target_name}_{query_sanitized}.sarif"
 
         # Setup JSON tracking object
         if query not in asm['QL']:
@@ -115,7 +115,7 @@ def execute_queries_and_update_json(args, asm, db_folder, target_name, json_data
             }
 
         cmd_analyze = [
-            args.codeql_cmd, "database", "analyze", str(db_folder), str(query_path),
+            args.codeql_cmd, "database", "analyze", str(db_folder), str(query),
             "--rerun", "--no-sarif-add-file-contents", "--no-sarif-add-snippets",
             "--max-paths=2", "--format=sarif-latest", f"--output={sarif_file}"
         ]
@@ -162,7 +162,7 @@ def execute_queries_and_update_json(args, asm, db_folder, target_name, json_data
 
 def process_java(args):
     """Java pipeline driven by the JSON state file."""
-    print("[INFO] Starting Java CodeQL Pipeline (JSON Driven)...")
+    print("[INFO] Starting Java CodeQL Pipeline...")
 
     json_path = Path(args.json_path)
     if not json_path.exists():
@@ -196,16 +196,16 @@ def process_java(args):
             print(f"[INFO] Analysis already done for {jar_name}, skipping.")
             continue
 
-        print(f"\n[*] Processing jar: {jar_name}")
+        print(f"[*] Processing jar: {jar_name}")
         jar_local = src_out / f"{jar_name}.jar"
         decomp_dir = src_out / f"{jar_name}_decomp"
         db_folder = db_out / f"{jar_name}_db"
 
         # 1. Fetch or Copy JAR
         if not jar_local.exists():
-            if args.docker_kc:
-                print(f"[INFO] Fetching {container_path} from docker container {args.docker_kc}...")
-                success, _ = run_command(["docker", "cp", f"{args.docker_kc}:{container_path}", str(jar_local)])
+            if args.docker:
+                print(f"[INFO] Fetching {container_path} from docker container {args.docker}...")
+                success, _ = run_command(["docker", "cp", f"{args.docker}:{container_path}", str(jar_local)])
                 if not success:
                     print(f"[ERROR] Failed to fetch {container_path} from docker.")
                     continue
@@ -217,6 +217,8 @@ def process_java(args):
                 else:
                     print(f"[ERROR] File not found locally: {container_path} (and no --docker provided)")
                     continue
+
+        asm.setdefault("SizeMB", get_file_size_mb(jar_local))
 
         # 2. Decompile with Fernflower/Vineflower
         if not decomp_dir.exists():
@@ -263,7 +265,7 @@ def extract_dependencies(json_deps_path, root_dll_path, max_depth):
 
 def process_dotnet(args):
     """.NET pipeline driven by the JSON state file."""
-    print("[INFO] Starting .NET CodeQL Pipeline (JSON Driven)...")
+    print("[INFO] Starting .NET CodeQL Pipeline...")
 
     json_path = Path(args.json_path)
     if not json_path.exists():
@@ -288,6 +290,8 @@ def process_dotnet(args):
         if not os.path.exists(dll_path):
             print(f"[WARNING] Local DLL path not found for '{dll_name}', skipping.")
             continue
+        else:
+            asm.setdefault("SizeMB", get_file_size_mb(dll_path))
 
         asm.setdefault('QL', {})
 
@@ -301,7 +305,7 @@ def process_dotnet(args):
             print(f"[INFO] Analysis already done for {dll_name}, skipping.")
             continue
 
-        print(f"\n[*] Analyzing assembly: {dll_name}")
+        print(f"[*] Analyzing assembly: {dll_name}")
         sln_folder = src_out / dll_name
         db_folder = db_out / dll_name
 
@@ -340,6 +344,55 @@ def process_dotnet(args):
     print("[INFO] All .NET processing done!")
 
 
+def get_file_size_mb(path_str):
+    """Returns file size in MB if path exists locally, else 0."""
+    try:
+        p = Path(path_str)
+        if p.exists() and p.is_file():
+            # .stat().st_size returns bytes
+            size_mb = p.stat().st_size / (1024 * 1024)
+            return round(size_mb, 2)
+    except Exception:
+        pass
+    return 0
+
+def generate_initial_json(input_path, output_json):
+    """
+    Parses a list file or a single file path to create the initial JSON structure.
+    """
+    entries = []
+    input_p = Path(input_path)
+
+    # Case 1: Input is a text/list file containing multiple paths
+    if input_p.exists() and input_p.is_file():
+        print(f"[INFO] Reading entries from list file: {input_path}")
+        with open(input_p, 'r', encoding='utf-8') as f:
+            paths = [line.strip() for line in f if line.strip()]
+            for p in paths:
+                entries.append({
+                    "Name": Path(p).stem,
+                    "Path": p,
+                    "QL": {}
+                })
+    # Case 2: Input is a single file (JAR, DLL, or even a non-existing path string)
+    else:
+        print(f"[INFO] Treating input as a single entry: {input_path}")
+        entries.append({
+            "Name": input_p.stem,
+            "Path": str(input_path),
+            "QL": {}
+        })
+
+    json_data = {"assemblies": entries}
+
+    with open(output_json, 'w', encoding='utf-8') as f:
+        json.dump(json_data, f, indent=4)
+    
+    print(f"[+] Successfully created {output_json} with {len(entries)} entries.")
+
+def run_init(args):
+    generate_initial_json(args.input, args.json_path)
+
 # ==========================================
 # CLI PARSER
 # ==========================================
@@ -352,7 +405,6 @@ def main():
     def add_common_args(subparser):
         subparser.add_argument("--json-path", required=True, help="Path to the assemblies JSON file")
         subparser.add_argument("--queries", required=True, nargs="+", help="List of QL queries or suites to run")
-        subparser.add_argument("--query-dir", default="./queries", help="Directory where QL files reside")
         subparser.add_argument("--src-out", default="./sources", help="Output directory for decompiled sources")
         subparser.add_argument("--db-out", default="./databases", help="Output directory for CodeQL databases")
         subparser.add_argument("--sarif-out", default="./sarif", help="Output directory for SARIF results")
@@ -376,6 +428,11 @@ def main():
     dotnet_parser.add_argument("--json-deps", help="Optional JSON file for dependency mapping")
     dotnet_parser.add_argument("--max-depth", type=int, default=5, help="Max depth for dependency decompilation")
     dotnet_parser.set_defaults(func=process_dotnet)
+
+    init_parser = subparsers.add_parser("init", help="Generate the JSON config file")
+    init_parser.add_argument("--input", required=True, help="Path to a .lst file or a single file path")
+    init_parser.add_argument("--json-path", required=True, help="Target path for the generated JSON")
+    init_parser.set_defaults(func=run_init)
 
     args = parser.parse_args()
     args.func(args)
