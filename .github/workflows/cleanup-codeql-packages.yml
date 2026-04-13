@@ -1,0 +1,30 @@
+name: Clean up old CodeQL packages
+
+on:
+  schedule:
+    # Runs at 00:00 on the 1st day of every month
+    - cron: '0 0 1 * *'
+  workflow_dispatch:
+
+jobs:
+  delete-old-versions:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write # 
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - 'synacktiv/qlinspector-java-queries'
+          - 'synacktiv/qlinspector-csharp-queries'
+          - 'synacktiv/qlinspector-csharp-extensions'
+          - 'synacktiv/qlinspector-java-extensions'
+
+    steps:
+      - name: Delete old package versions for ${{ matrix.package }}
+        uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ matrix.package }}
+          package-type: 'container' # CodeQL packs use the container registry (ghcr.io)
+          min-versions-to-keep: 2
