@@ -1,4 +1,6 @@
 {
+    "skip-github-release": true,
+    "skip-changelog": true,
     "packages": {
         "ql/java/ext": {
             "release-type": "simple",
