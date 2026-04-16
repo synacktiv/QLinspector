@@ -1,6 +1,6 @@
 {
   "ql/java/ext": "0.0.2",
-  "ql/java/src": "0.1.0",
-  "ql/csharp/ext": "0.1.0",
-  "ql/csharp/src": "0.1.0"
+  "ql/java/src": "0.2.0",
+  "ql/csharp/ext": "0.2.0",
+  "ql/csharp/src": "0.2.0"
 }
