@@ -15,6 +15,7 @@ import semmle.code.java.security.GroovyInjection as GroovyInjection
 import semmle.code.java.security.JexlInjectionQuery as JexlInjection
 import semmle.code.java.security.SpelInjection as SpelInjection
 import semmle.code.java.security.TaintedPathQuery as TaintedPath
+import ghsl.BeanManipulation as BeanManipulation
 import libs.generic.sinks.Jakarta as Jakarta
 import libs.generic.sinks.ScriptInjection as ScriptInjection
 import libs.generic.sinks.UnsafeDeserialization as UnsafeDeserialization
@@ -52,6 +53,7 @@ class ExternalDangerousSink extends Sink {
     or this instanceof JexlInjection::JexlEvaluationSink
     or this instanceof SpelInjection::SpelExpressionEvaluationSink
     or this instanceof TaintedPath::TaintedPathSink
+    or this instanceof BeanManipulation::BeanManipulationSink
 
     // custom
     or this instanceof Jakarta::Sink
