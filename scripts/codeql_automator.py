@@ -66,7 +66,7 @@ def get_sarif_results(sarif_path):
         return []
 
 
-def filter_sarif_threadflows(sarif_path, output_path, max_steps=42):
+def filter_sarif_threadflows(sarif_path, output_path, max_steps=90):
     if not os.path.exists(sarif_path):
         return
 
@@ -130,7 +130,7 @@ def handle_ctrl_c(sig, frame):
             if CURRENT_CONTEXT["jar"].exists():
                 os.remove(CURRENT_CONTEXT["jar"])
 
-        print("[+] Cleanup complete. Exiting.")
+        print("[WARN] Cleanup complete. Exiting.")
     except Exception as e:
         print(f"[ERROR] Cleanup failed: {e}")
 
@@ -212,7 +212,7 @@ def execute_queries_and_update_json(args, asm, db_folder, target_name, json_data
             "Changed": prev != result_count
         })
 
-        print(f"[+] {query}: {result_count} results")
+        print(f"[INFO] {query}: {result_count} results")
 
     save_json_atomic(json_data, json_path)
     return any_results
@@ -305,9 +305,14 @@ def process_java(args):
             print(f"[INFO] Decompiling to {decomp}")
             decomp.mkdir(parents=True, exist_ok=True)
             if args.vineflower_jar:
-                cmd = ["java", "-jar", args.vineflower_jar, str(jar_local), str(decomp)]
+                cmd = ["java", "-jar", args.vineflower_jar]
             else:
-                cmd = ["vineflower", str(jar_local), str(decomp)]
+                cmd = ["vineflower"]
+
+            if args.threads:
+                cmd.append(f"--thread-count={args.threads}")
+
+            cmd.extend([str(jar_local), str(decomp)])
 
             ok, out = run_command(cmd)
 
