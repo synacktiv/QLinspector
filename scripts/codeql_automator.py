@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 import os
-import sys
 import json
 import shutil
 import argparse
 import subprocess
 from pathlib import Path
+import signal
+import threading
+
+CURRENT_CONTEXT = {
+    "db": None,
+    "decomp": None,
+    "jar": None,
+    "cleanup_assembly": False
+}
 
 # ==========================================
-# COMMON UTILITIES & SARIF
+# COMMON UTILITIES
 # ==========================================
 
-def run_command(cmd, timeout=None, check=True, cwd=None):
-    """Executes a subprocess command, handling timeouts and errors."""
+def run_command(cmd, timeout=None, cwd=None):
+    """Executes a subprocess command with full output capture."""
     try:
         result = subprocess.run(
             cmd,
@@ -20,42 +28,59 @@ def run_command(cmd, timeout=None, check=True, cwd=None):
             stderr=subprocess.PIPE,
             text=True,
             timeout=timeout,
-            check=check,
             cwd=cwd
         )
-        return True, result.stdout
-    except subprocess.TimeoutExpired as e:
-        return False, f"Timeout after {timeout}s"
-    except subprocess.CalledProcessError as e:
-        return False, e.stderr
+        output = (result.stdout or "") + (result.stderr or "")
+        return result.returncode == 0, output.strip()
+    except subprocess.TimeoutExpired:
+        return False, f"Timeout after {timeout}s\nCMD: {' '.join(cmd)}"
+
+
+def save_json_atomic(data, path):
+    """Atomically write JSON to disk."""
+    tmp_path = f"{path}.tmp"
+    with open(tmp_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=4)
+    os.replace(tmp_path, path)
+
+
+# ==========================================
+# SARIF UTILITIES
+# ==========================================
 
 def get_sarif_results(sarif_path):
-    """Reads SARIF file and returns the results list."""
+    """Safely extract all results across runs."""
     if not os.path.exists(sarif_path):
         return []
     try:
         with open(sarif_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            runs = data.get('runs', [])
-            if runs and 'results' in runs[0]:
-                return runs[0]['results']
+
+        results = []
+        for run in data.get('runs', []):
+            results.extend(run.get('results', []))
+        return results
+
     except Exception as e:
         print(f"[ERROR] Failed to read SARIF {sarif_path}: {e}")
-    return []
+        return []
+
 
 def filter_sarif_threadflows(sarif_path, output_path, max_steps=42):
-    """Filters SARIF results where thread flow locations exceed max_steps."""
     if not os.path.exists(sarif_path):
         return
 
     with open(sarif_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
 
-    if not data.get('runs') or 'results' not in data['runs'][0]:
+    runs = data.get('runs', [])
+    if not runs or 'results' not in runs[0]:
         return
 
+    original = len(runs[0]['results'])
     valid_results = []
-    for result in data['runs'][0]['results']:
+
+    for result in runs[0]['results']:
         code_flows = result.get('codeFlows', [])
         if not code_flows:
             valid_results.append(result)
@@ -67,294 +92,316 @@ def filter_sarif_threadflows(sarif_path, output_path, max_steps=42):
                 if len(tf.get('locations', [])) > max_steps:
                     keep = False
                     break
+            if not keep:
+                break
+
         if keep:
             valid_results.append(result)
 
-    data['runs'][0]['results'] = valid_results
+    runs[0]['results'] = valid_results
+    filtered_out = original - len(valid_results)
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2)
+    print(f"[INFO] Filtered out {filtered_out} noisy results")
+    save_json_atomic(data, output_path)
 
-def get_shortest_sarif_paths(sarif_path, top_n=20):
-    """Extracts the top N shortest thread flow lengths."""
-    results = get_sarif_results(sarif_path)
+
+def extract_shortest_paths_from_results(results, top_n=20):
     lengths = []
-
     for res in results:
-        code_flows = res.get('codeFlows', [])
-        for cf in code_flows:
-            thread_flows = cf.get('threadFlows', [])
-            if thread_flows:
-                locs = len(thread_flows[0].get('locations', []))
+        for cf in res.get('codeFlows', []):
+            tfs = cf.get('threadFlows', [])
+            if tfs:
+                locs = len(tfs[0].get('locations', []))
                 if locs > 0:
                     lengths.append(locs)
+    return sorted(lengths)[:top_n]
 
-    lengths.sort()
-    return lengths[:top_n]
+def handle_ctrl_c(sig, frame):
+    print("[WARN] Ctrl+C detected. Cleaning up current task...")
 
+    try:
+        if CURRENT_CONTEXT["db"]:
+            shutil.rmtree(CURRENT_CONTEXT["db"], ignore_errors=True)
+
+        if CURRENT_CONTEXT["decomp"]:
+            shutil.rmtree(CURRENT_CONTEXT["decomp"], ignore_errors=True)
+
+        if CURRENT_CONTEXT["cleanup_assembly"] and CURRENT_CONTEXT["jar"]:
+            if CURRENT_CONTEXT["jar"].exists():
+                os.remove(CURRENT_CONTEXT["jar"])
+
+        print("[+] Cleanup complete. Exiting.")
+    except Exception as e:
+        print(f"[ERROR] Cleanup failed: {e}")
+
+    os._exit(130)
 
 # ==========================================
-# COMMON PIPELINE LOGIC
+# COMMON PIPELINE
 # ==========================================
 
 def execute_queries_and_update_json(args, asm, db_folder, target_name, json_data, json_path):
-    """Shared logic to run CodeQL queries, parse results, and update the JSON state."""
     sarif_out = Path(args.sarif_out)
+    any_results = False
 
     for query in args.queries:
         query_sanitized = query.replace("/", "-").replace(":", "-")
         sarif_file = sarif_out / f"{target_name}_{query_sanitized}.sarif"
 
-        # Setup JSON tracking object
-        if query not in asm['QL']:
-            asm['QL'][query] = {
-                "Top20ShortestPaths": [],
-                "ResultStatus": "",
-                "NumberOfResults": 0,
-                "Changed": False
-            }
+        asm.setdefault('QL', {})
+        asm['QL'].setdefault(query, {
+            "Top20ShortestPaths": [],
+            "ResultStatus": "",
+            "NumberOfResults": 0,
+            "Changed": False
+        })
 
-        cmd_analyze = [
-            args.codeql_cmd, "database", "analyze", str(db_folder), str(query),
-            "--rerun", "--no-sarif-add-file-contents", "--no-sarif-add-snippets",
-            "--max-paths=2", "--format=sarif-latest", f"--output={sarif_file}"
+        if (
+            not args.rerun
+            and query in asm['QL']
+            and asm['QL'][query].get("ResultStatus") == "OK"
+        ):
+            print(f"[INFO] Skipping {query} (already OK)")
+            continue
+
+        cmd = [
+            args.codeql_cmd, "database", "analyze",
+            str(db_folder), str(query),
+            "--rerun",
+            "--no-sarif-add-file-contents",
+            "--no-sarif-add-snippets",
+            "--max-paths=2",
+            "--format=sarif-latest",
+            f"--output={sarif_file}"
         ]
+
         if args.ram:
-            cmd_analyze.append(f"--ram={args.ram}")
+            cmd.append(f"--ram={args.ram}")
+        if args.threads:
+            cmd.append(f"--threads={args.threads}")
 
-        print(f"[INFO] Running query {query} on {target_name}...")
-        success, err = run_command(cmd_analyze, timeout=args.timeout)
+        print(f"[INFO] Running {query} on {target_name}")
+        success, output = run_command(cmd, timeout=args.timeout)
 
-        if success:
-            asm['QL'][query]["ResultStatus"] = "OK"
-            results = get_sarif_results(sarif_file)
+        if not success:
+            status = "Timeout" if "Timeout" in output else "ERROR"
+            asm['QL'][query]["ResultStatus"] = status
+            print(f"[ERROR] {query} failed on {target_name}")
+            print(output)
+            continue
+
+        results = get_sarif_results(sarif_file)
+        result_count = len(results)
+
+        if result_count > 0:
+            any_results = True
+
+        if result_count >= 250:
+            filtered = sarif_out / f"{target_name}-{query}-filtered.sarif"
+            filter_sarif_threadflows(sarif_file, filtered)
+            results = get_sarif_results(filtered)
             result_count = len(results)
 
-            # Filter if too many results
-            if result_count >= 250:
-                filtered_sarif = sarif_out / f"{target_name}-{query}-filtered.sarif"
-                filter_sarif_threadflows(sarif_file, filtered_sarif)
-                sarif_file = filtered_sarif
-                results = get_sarif_results(sarif_file)
-                result_count = len(results)
+        shortest = extract_shortest_paths_from_results(results)
+        prev = asm['QL'][query]["NumberOfResults"]
 
-            # Update JSON tracking
-            shortest = get_shortest_sarif_paths(sarif_file)
-            prev_count = asm['QL'][query]["NumberOfResults"]
+        asm['QL'][query].update({
+            "ResultStatus": "OK",
+            "NumberOfResults": result_count,
+            "Top20ShortestPaths": shortest,
+            "Changed": prev != result_count
+        })
 
-            asm['QL'][query]["Changed"] = (prev_count != result_count)
-            asm['QL'][query]["NumberOfResults"] = result_count
-            asm['QL'][query]["Top20ShortestPaths"] = shortest
-            print(f"[+] Query completed successfully. Found {result_count} results.")
-        else:
-            status = "Timeout" if "Timeout" in str(err) else "ERROR"
-            asm['QL'][query]["ResultStatus"] = status
-            print(f"[x] Query {status.lower()} for {target_name}. Error: {err}")
+        print(f"[+] {query}: {result_count} results")
 
-    # Save JSON progress after each assembly/jar finishes all queries
-    with open(json_path, 'w', encoding='utf-8') as f:
-        json.dump(json_data, f, indent=4)
+    save_json_atomic(json_data, json_path)
+    return any_results
 
+def create_codeql_database(args, db_path, language, source_root):
+    """
+    Unified CodeQL database creation for Java and .NET.
+    Uses args directly for configuration.
+    Returns: (success: bool, output: str)
+    """
+
+    cmd = [
+        args.codeql_cmd,
+        "database",
+        "create",
+        str(db_path),
+        f"--language={language}",
+        "--build-mode=none",
+        f"--source-root={source_root}"
+    ]
+
+    if args.ram:
+        cmd.append(f"--ram={args.ram}")
+    if args.threads:
+        cmd.append(f"--threads={args.threads}")
+
+    print(f"[INFO] Creating CodeQL DB ({language}) at {db_path}")
+
+    success, output = run_command(cmd)
+
+    if not success:
+        print(f"[ERROR] CodeQL DB creation failed ({language})")
+        print(output)
+
+    return success, output
 
 # ==========================================
 # JAVA PIPELINE
 # ==========================================
 
 def process_java(args):
-    """Java pipeline driven by the JSON state file."""
-    print("[INFO] Starting Java CodeQL Pipeline...")
+    print("[INFO] Starting Java pipeline")
 
     json_path = Path(args.json_path)
     if not json_path.exists():
-        print(f"[ERROR] JSON file not found: {json_path}")
+        print("[ERROR] JSON not found")
         return
 
     with open(json_path, 'r', encoding='utf-8') as f:
-        json_data = json.load(f)
+        data = json.load(f)
 
     src_out = Path(args.src_out)
     db_out = Path(args.db_out)
-    sarif_out = Path(args.sarif_out)
+    src_out.mkdir(exist_ok=True, parents=True)
+    db_out.mkdir(exist_ok=True, parents=True)
+    has_results = False
 
-    src_out.mkdir(parents=True, exist_ok=True)
-    db_out.mkdir(parents=True, exist_ok=True)
-    sarif_out.mkdir(parents=True, exist_ok=True)
+    for asm in data.get('assemblies', []):
+        name = asm['Name']
+        source_path = asm['Path']
 
-    for asm in json_data.get('assemblies', []):
-        jar_name = asm.get('Name')
-        container_path = asm.get('Path') # Treated as docker container path
+        print(f"[INFO] {name}")
 
-        asm.setdefault('QL', {})
+        jar_local = src_out / f"{name}.jar"
+        jar_was_copied = False
 
-        skip = True
-        for query in args.queries:
-            if query not in asm['QL'] or asm['QL'][query].get("ResultStatus") != "OK":
-                skip = False
-                break
-
-        if skip and not args.rerun:
-            print(f"[INFO] Analysis already done for {jar_name}, skipping.")
-            continue
-
-        print(f"[*] Processing jar: {jar_name}")
-        jar_local = src_out / f"{jar_name}.jar"
-        decomp_dir = src_out / f"{jar_name}_decomp"
-        db_folder = db_out / f"{jar_name}_db"
-
-        # 1. Fetch or Copy JAR
+        # Fetch / copy
         if not jar_local.exists():
             if args.docker:
-                print(f"[INFO] Fetching {container_path} from docker container {args.docker}...")
-                success, _ = run_command(["docker", "cp", f"{args.docker}:{container_path}", str(jar_local)])
-                if not success:
-                    print(f"[ERROR] Failed to fetch {container_path} from docker.")
+                ok, out = run_command(["docker", "cp", f"{args.docker}:{source_path}", str(jar_local)])
+                if not ok:
+                    print(out)
                     continue
+                jar_was_copied = True
+            elif os.path.exists(source_path):
+                jar_local = Path(source_path)
             else:
-                # If no docker ID is provided, assume the path in the JSON is a local file
-                if os.path.exists(container_path):
-                    print(f"[INFO] Copying local file {container_path} to {jar_local}...")
-                    shutil.copy2(container_path, jar_local)
-                else:
-                    print(f"[ERROR] File not found locally: {container_path} (and no --docker provided)")
-                    continue
-
-        asm.setdefault("SizeMB", get_file_size_mb(jar_local))
-
-        # 2. Decompile with Fernflower/Vineflower
-        if not decomp_dir.exists():
-            print(f"[INFO] Decompiling to {decomp_dir}")
-            decomp_dir.mkdir(parents=True, exist_ok=True)
-            success, _ = run_command(["java", "-jar", args.decomp_jar, str(jar_local), str(decomp_dir)])
-            if not success:
-                print(f"[ERROR] Decompilation failed for {jar_name}")
+                print("[ERROR] Missing input")
                 continue
 
-        # 3. Create CodeQL DB
-        if not db_folder.exists():
-            print(f"[INFO] Creating CodeQL Database...")
-            cmd_db = [
-                args.codeql_cmd, "database", "create", str(db_folder),
-                "--language=java", "--build-mode=none", f"--source-root={decomp_dir}"
-            ]
-            success, _ = run_command(cmd_db)
-            if not success:
-                print(f"[ERROR] DB creation failed for {jar_name}")
+        decomp = src_out / f"{name}_decomp"
+        db = db_out / f"{name}_db"
+
+        CURRENT_CONTEXT["db"] = db
+        CURRENT_CONTEXT["decomp"] = decomp
+        CURRENT_CONTEXT["jar"] = jar_local
+        CURRENT_CONTEXT["cleanup_assembly"] = jar_was_copied
+
+        if not decomp.exists():
+            print(f"[INFO] Decompiling to {decomp}")
+            decomp.mkdir(parents=True, exist_ok=True)
+            if args.vineflower_jar:
+                cmd = ["java", "-jar", args.vineflower_jar, str(jar_local), str(decomp)]
+            else:
+                cmd = ["vineflower", str(jar_local), str(decomp)]
+
+            ok, out = run_command(cmd)
+
+            if not ok:
+                print(f"[ERROR] Decompilation failed for {name}")
+                print(out)
                 continue
 
-        # 4. Run Queries & Update JSON
-        execute_queries_and_update_json(args, asm, db_folder, jar_name, json_data, json_path)
+        if not db.exists():
+            success, _ = create_codeql_database(
+                args,
+                db,
+                "java",
+                decomp
+            )
 
-        # 5. Cleanup
-        if args.delete:
-            shutil.rmtree(db_folder, ignore_errors=True)
-            shutil.rmtree(decomp_dir, ignore_errors=True)
-            if jar_local.exists(): os.remove(jar_local)
+            if not success:
+                continue
 
-    print("[INFO] All Java processing done!")
+        has_results = execute_queries_and_update_json(args, asm, db, name, data, json_path)
+
+        if args.delete and not has_results:
+            shutil.rmtree(db, ignore_errors=True)
+            shutil.rmtree(decomp, ignore_errors=True)
+            if jar_was_copied and jar_local.exists():
+                os.remove(jar_local)
+
+    print("[INFO] Java done")
 
 
 # ==========================================
 # .NET PIPELINE
 # ==========================================
 
-def extract_dependencies(json_deps_path, root_dll_path, max_depth):
-    """Simplified Python version of the recursive dependency extractor."""
-    if not os.path.exists(json_deps_path):
-        return [root_dll_path]
-    return [root_dll_path]
-
 def process_dotnet(args):
-    """.NET pipeline driven by the JSON state file."""
-    print("[INFO] Starting .NET CodeQL Pipeline...")
+    print("[INFO] Starting .NET pipeline")
 
     json_path = Path(args.json_path)
-    if not json_path.exists():
-        print(f"[ERROR] JSON file not found: {json_path}")
-        return
-
     with open(json_path, 'r', encoding='utf-8') as f:
-        json_data = json.load(f)
+        data = json.load(f)
 
     src_out = Path(args.src_out)
     db_out = Path(args.db_out)
-    sarif_out = Path(args.sarif_out)
+    src_out.mkdir(exist_ok=True, parents=True)
+    db_out.mkdir(exist_ok=True, parents=True)
+    has_results = False
 
-    src_out.mkdir(parents=True, exist_ok=True)
-    db_out.mkdir(parents=True, exist_ok=True)
-    sarif_out.mkdir(parents=True, exist_ok=True)
+    for asm in data.get('assemblies', []):
+        name = asm['Name']
+        dll = asm['Path']
 
-    for asm in json_data.get('assemblies', []):
-        dll_name = asm.get('Name')
-        dll_path = asm.get('Path') # Treated as local host path
-
-        if not os.path.exists(dll_path):
-            print(f"[WARNING] Local DLL path not found for '{dll_name}', skipping.")
-            continue
-        else:
-            asm.setdefault("SizeMB", get_file_size_mb(dll_path))
-
-        asm.setdefault('QL', {})
-
-        skip = True
-        for query in args.queries:
-            if query not in asm['QL'] or asm['QL'][query].get("ResultStatus") != "OK":
-                skip = False
-                break
-
-        if skip and not args.rerun:
-            print(f"[INFO] Analysis already done for {dll_name}, skipping.")
+        if not os.path.exists(dll):
+            print(f"[WARN] Missing {dll}")
             continue
 
-        print(f"[*] Analyzing assembly: {dll_name}")
-        sln_folder = src_out / dll_name
-        db_folder = db_out / dll_name
+        print(f"[INFO] {name}")
 
-        # 1. Decompile with dnSpy
-        if not sln_folder.exists():
-            sln_folder.mkdir(parents=True, exist_ok=True)
-            dlls_to_decompile = [dll_path]
-            if args.json_deps:
-                dlls_to_decompile = extract_dependencies(args.json_deps, dll_path, args.max_depth)
+        sln = src_out / name
+        db = db_out / name
 
-            dnspy_cmd = [args.dnspy_cli] + dlls_to_decompile + ["-o", str(sln_folder), "--sln-name", f"{dll_name}.sln"]
-            success, _ = run_command(dnspy_cmd)
-            if not success:
-                print(f"[ERROR] Failed to decompile {dll_name}")
+        CURRENT_CONTEXT["db"] = db
+        CURRENT_CONTEXT["decomp"] = sln
+        CURRENT_CONTEXT["jar"] = None
+        CURRENT_CONTEXT["cleanup_assembly"] = False
+
+        if not sln.exists():
+            print(f"[INFO] Decompiling to {sln}")
+            ok, out = run_command([args.dnspy_cli, dll, "-o", str(sln)])
+            if not ok:
+                print(f"[ERROR] Decompilation failed for {name}")
+                print(out)
                 continue
 
-        # 2. Create CodeQL DB
-        if not db_folder.exists():
-            cmd_db = [
-                args.codeql_cmd, "database", "create", str(db_folder),
-                "--language=csharp", f"--source-root={sln_folder}", "--build-mode=none"
-            ]
-            success, _ = run_command(cmd_db)
+        if not db.exists():
+            success, _ = create_codeql_database(
+                args,
+                db,
+                "csharp",
+                sln
+            )
+
             if not success:
-                print(f"[ERROR] Failed to create CodeQL DB for {dll_name}")
                 continue
 
-        # 3. Run Queries & Update JSON
-        execute_queries_and_update_json(args, asm, db_folder, dll_name, json_data, json_path)
+        has_results = execute_queries_and_update_json(args, asm, db, name, data, json_path)
 
-        # 4. Cleanup
-        if args.delete:
-            shutil.rmtree(db_folder, ignore_errors=True)
-            # shutil.rmtree(sln_folder, ignore_errors=True)
+        if args.delete and not has_results:
+            shutil.rmtree(db, ignore_errors=True)
+            shutil.rmtree(sln, ignore_errors=True)
 
-    print("[INFO] All .NET processing done!")
+    print("[INFO] .NET done")
 
-
-def get_file_size_mb(path_str):
-    """Returns file size in MB if path exists locally, else 0."""
-    try:
-        p = Path(path_str)
-        if p.exists() and p.is_file():
-            # .stat().st_size returns bytes
-            size_mb = p.stat().st_size / (1024 * 1024)
-            return round(size_mb, 2)
-    except Exception:
-        pass
-    return 0
+def run_init(args):
+    generate_initial_json(args.input, args.json_path)
 
 def generate_initial_json(input_path, output_json):
     """
@@ -363,7 +410,7 @@ def generate_initial_json(input_path, output_json):
     entries = []
     input_p = Path(input_path)
 
-    # Case 1: Input is a text/list file containing multiple paths
+    # Case 1: Input is a list file
     if input_p.exists() and input_p.is_file():
         print(f"[INFO] Reading entries from list file: {input_path}")
         with open(input_p, 'r', encoding='utf-8') as f:
@@ -374,8 +421,8 @@ def generate_initial_json(input_path, output_json):
                     "Path": p,
                     "QL": {}
                 })
-    # Case 2: Input is a single file (JAR, DLL, or even a non-existing path string)
     else:
+        # Case 2: Treat as single entry
         print(f"[INFO] Treating input as a single entry: {input_path}")
         entries.append({
             "Name": input_p.stem,
@@ -385,16 +432,12 @@ def generate_initial_json(input_path, output_json):
 
     json_data = {"assemblies": entries}
 
-    with open(output_json, 'w', encoding='utf-8') as f:
-        json.dump(json_data, f, indent=4)
-    
+    save_json_atomic(json_data, output_json)
+
     print(f"[+] Successfully created {output_json} with {len(entries)} entries.")
 
-def run_init(args):
-    generate_initial_json(args.input, args.json_path)
-
 # ==========================================
-# CLI PARSER
+# CLI
 # ==========================================
 
 def main():
@@ -408,16 +451,17 @@ def main():
         subparser.add_argument("--src-out", default="./sources", help="Output directory for decompiled sources")
         subparser.add_argument("--db-out", default="./databases", help="Output directory for CodeQL databases")
         subparser.add_argument("--sarif-out", default="./sarif", help="Output directory for SARIF results")
-        subparser.add_argument("--ram", type=int, default=8192, help="RAM limit in MB for analysis")
-        subparser.add_argument("--timeout", type=int, default=3600, help="Timeout in seconds per query")
-        subparser.add_argument("--delete", action="store_true", help="Delete CodeQL DBs/Sources after processing")
+        subparser.add_argument("--ram", type=int, default=8192, help="RAM limit in MB for analysis (8192 by default)")
+        subparser.add_argument("--threads", type=int, default=1, help="Use this many threads to evaluate queries (1 by default)")
+        subparser.add_argument("--timeout", type=int, default=3600, help="Timeout in seconds per query (3600 by default)")
+        subparser.add_argument("--delete", action="store_true", help="Delete CodeQL DBs/Sources after processing (only if no results found)")
         subparser.add_argument("--rerun", action="store_true", help="Force rerun of queries even if marked OK in JSON")
         subparser.add_argument("--codeql-cmd", default="codeql", help="CodeQL executable path")
 
     # --- Java Parser ---
     java_parser = subparsers.add_parser("java", help="Run the Java pipeline")
     add_common_args(java_parser)
-    java_parser.add_argument("--decomp-jar", required=True, help="Path to Vineflower/Fernflower JAR")
+    java_parser.add_argument("--vineflower-jar", help="Path to Vineflower JAR if not in the path.")
     java_parser.add_argument("--docker", help="Docker container ID/Name")
     java_parser.set_defaults(func=process_java)
 
@@ -429,10 +473,13 @@ def main():
     dotnet_parser.add_argument("--max-depth", type=int, default=5, help="Max depth for dependency decompilation")
     dotnet_parser.set_defaults(func=process_dotnet)
 
+    # --- Init Parser ---
     init_parser = subparsers.add_parser("init", help="Generate the JSON config file")
     init_parser.add_argument("--input", required=True, help="Path to a .lst file or a single file path")
     init_parser.add_argument("--json-path", required=True, help="Target path for the generated JSON")
     init_parser.set_defaults(func=run_init)
+
+    signal.signal(signal.SIGINT, handle_ctrl_c)
 
     args = parser.parse_args()
     args.func(args)
