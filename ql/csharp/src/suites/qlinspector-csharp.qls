@@ -7,3 +7,5 @@
     - synacktiv/csharp/dangeroustypefinder
     - synacktiv/csharp/qlinspector-binaryformatter
     - synacktiv/csharp/qlinspector-newtonsoftjson
+    - synacktiv/csharp/surrogatesetobjectdatafinder
+    - synacktiv/csharp/surrogateselectorinstantiationfinder
